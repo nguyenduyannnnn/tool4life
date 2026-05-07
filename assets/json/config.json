@@ -1,0 +1,20 @@
+{
+  "environment": "DEV",
+  "DEV": {
+    "appName": "Chang Meeting",
+    "appIcon": "@mipmap/ic_launcher",
+    "launchBackground": "@drawable/launch_background",
+    "appId": "annd11.mobile.changmeeting",
+    "versionName": "1.0.0",
+    "versionCode": 1,
+    "server": "https://meeting-agent-api.fpt.net",
+    "storeFile": "cargo_keystore.jks",
+    "storePassword": "123456",
+    "keyAlias": "changmeeting",
+    "keyPassword": "123456",
+    "langDefault": "vi",
+    "enableLang": true,
+    "releaseDate": "25/01/2024",
+    "displayPrint": true
+  }
+}

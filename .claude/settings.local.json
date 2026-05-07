@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(~/.claude/hooks/fkit-reporter.sh *)",
+      "Bash(export FKIT_REPORTER_URL=\"https://fkit-marketplace.onebot-training.meobeo.ai\")",
+      "Bash(export FKIT_API_KEY=\"fkit_1c3a5a3e2aa34773ca854119d082eca598193f28\")",
+      "Bash(curl -s -H 'Authorization: Bearer __TRACKED_VAR__' https://fkit-marketplace.onebot-training.meobeo.ai/api/reporter/summary)"
+    ]
+  }
+}
