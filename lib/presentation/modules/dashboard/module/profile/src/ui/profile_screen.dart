@@ -93,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(18),
                       child: Image.asset(
-                        'assets/image/chang_logo.png',
+                        'assets/image/tool4life_logo.png',
                         width: 96,
                         height: 96,
                         fit: BoxFit.cover,
@@ -104,8 +104,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   // Name
                   Text(
-                    Globals.prefs.getString(SharedPrefsKey.userName).isNotEmpty 
-                        ? Globals.prefs.getString(SharedPrefsKey.userName) 
+                    Globals.prefs.getString(SharedPrefsKey.userName).isNotEmpty
+                        ? Globals.prefs.getString(SharedPrefsKey.userName)
                         : 'User',
                     style: const TextStyle(
                       fontSize: 22,
@@ -117,8 +117,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   // Username
                   Text(
-                    Globals.prefs.getString(SharedPrefsKey.userEmail).isNotEmpty 
-                        ? Globals.prefs.getString(SharedPrefsKey.userEmail) 
+                    Globals.prefs.getString(SharedPrefsKey.userEmail).isNotEmpty
+                        ? Globals.prefs.getString(SharedPrefsKey.userEmail)
                         : 'email@example.com',
                     style: TextStyle(
                       fontSize: 16,
@@ -198,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   //   isLast: true,
                   //   onTap: () => print('Refer friends pressed'),
                   // ),
-                  
+
                   // Placeholder cho các chức năng sẽ implement sau
                   Container(
                     padding: const EdgeInsets.all(32),
@@ -244,7 +244,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 builder: (context, snapshot) {
                   final isLoading = snapshot.data ?? false;
                   return ElevatedButton(
-                    onPressed: isLoading ? null : () => _showDeleteAccountDialog(context),
+                    onPressed: isLoading
+                        ? null
+                        : () => _showDeleteAccountDialog(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red[50],
                       foregroundColor: Colors.red[700],
@@ -296,8 +298,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
-    Utilities.customPrint("🗑️ DELETE ACCOUNT: Delete account button pressed, showing dialog");
-    
+    Utilities.customPrint(
+        "🗑️ DELETE ACCOUNT: Delete account button pressed, showing dialog");
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -381,7 +384,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       TextButton(
                         onPressed: () => Navigator.of(dialogContext).pop(),
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
                         ),
                         child: Text(
                           'Hủy',
@@ -393,21 +397,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          Utilities.customPrint("🗑️ DELETE ACCOUNT: User confirmed deletion in dialog");
-                          
+                          Utilities.customPrint(
+                              "🗑️ DELETE ACCOUNT: User confirmed deletion in dialog");
+
                           // Get the navigator before closing dialog
-                          final navigator = Navigator.of(context, rootNavigator: true);
-                          
+                          final navigator =
+                              Navigator.of(context, rootNavigator: true);
+
                           // Close dialog first
                           Navigator.of(dialogContext).pop();
-                          
+
                           // Call delete account API
-                          final success = await _deleteAccountBloc.performDeleteAccount();
-                          
+                          final success =
+                              await _deleteAccountBloc.performDeleteAccount();
+
                           if (success) {
-                            Utilities.customPrint("🗑️ DELETE ACCOUNT: Success, navigating to login screen");
+                            Utilities.customPrint(
+                                "🗑️ DELETE ACCOUNT: Success, navigating to login screen");
                             navigator.pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginScreen()),
                               (route) => false,
                             );
                           } else {
@@ -419,14 +428,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   builder: (context) => Scaffold(
                                     body: Center(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.error, color: Colors.red, size: 64),
+                                          const Icon(Icons.error,
+                                              color: Colors.red, size: 64),
                                           const SizedBox(height: 16),
                                           const Text('Xóa tài khoản thất bại'),
                                           const SizedBox(height: 16),
                                           ElevatedButton(
-                                            onPressed: () => Navigator.of(context).pop(),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
                                             child: const Text('Đóng'),
                                           ),
                                         ],
@@ -436,14 +448,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               );
                             } catch (e) {
-                              Utilities.customPrint("❌ DELETE ACCOUNT: Cannot show error: $e");
+                              Utilities.customPrint(
+                                  "❌ DELETE ACCOUNT: Cannot show error: $e");
                             }
                           }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -522,7 +536,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       TextButton(
                         onPressed: () => Navigator.of(dialogContext).pop(),
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
                         ),
                         child: Text(
                           'Hủy',
@@ -541,7 +556,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),

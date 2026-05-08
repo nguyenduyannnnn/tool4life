@@ -7,6 +7,7 @@ import 'common/globals.dart';
 import 'common/localization/l10n.dart';
 import 'common/theme.dart';
 import 'common/utilities.dart';
+import 'features/todo/data/datasources/local_database_service.dart';
 import 'presentation/modules/authen_module/src/ui/splash_screen.dart';
 import 'recording/services/file_manager_service.dart';
 import 'recording/services/migration_service.dart';
@@ -14,18 +15,25 @@ import 'recording/services/migration_service.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  Config.getPreferences().then((_) {
-    SystemChrome.setPreferredOrientations([
+  Config.getPreferences().then((_) async {
+    await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
-    ]).then((_) {
-      // Initialize FileManagerService and scan for existing recordings
-      _initializeRecordingServices();
-      
-      Globals.myApp = GlobalKey<MyAppState>();
-      runApp(MyApp(
-        key: Globals.myApp,
-      ));
-    });
+    ]);
+
+    // Initialize local SQLite database (used by Todo feature)
+    try {
+      await LocalDatabaseService.instance.open();
+    } catch (e) {
+      Utilities.customPrint('Error opening local database: $e');
+    }
+
+    // Initialize FileManagerService and scan for existing recordings
+    _initializeRecordingServices();
+
+    Globals.myApp = GlobalKey<MyAppState>();
+    runApp(MyApp(
+      key: Globals.myApp,
+    ));
   });
 }
 

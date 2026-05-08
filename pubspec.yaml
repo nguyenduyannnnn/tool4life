@@ -68,6 +68,11 @@ dependencies:
   crypto: ^3.0.5
   share_plus: ^10.0.2
 
+  # Todo feature
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
+  sqflite: ^2.3.3
+
   # flutter_svg: ^2.0.10+1 # Uncomment if using SVG logo
 dev_dependencies:
   flutter_test:
@@ -85,8 +90,8 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/image/chang_logo.png
-  adaptive_icon_foreground: assets/image/chang_logo.png
+  image_path: assets/image/tool4life_logo.png
+  adaptive_icon_foreground: assets/image/tool4life_logo.png
   adaptive_icon_background: "#ffffff"
   remove_alpha_ios: true
 
@@ -251,9 +256,9 @@ flutter:
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image: assets/image/fpt_telecom_logo.png
+  image: assets/image/tool4life_logo.png
   android: true
   ios: true
   android_12:
     color: "#FFFFFF"
-    image: assets/image/fpt_telecom_logo.png
+    image: assets/image/tool4life_logo.png

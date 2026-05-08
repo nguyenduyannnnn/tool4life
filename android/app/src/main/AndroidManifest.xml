@@ -39,7 +39,7 @@
     <!-- Wake lock to keep recording in background -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
-        android:label="Chang Meeting"
+        android:label="Tool4Life"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
         <!-- Overlay service for recording bubble -->
