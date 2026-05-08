@@ -68,10 +68,11 @@ dependencies:
   crypto: ^3.0.5
   share_plus: ^10.0.2
 
-  # Todo feature
+  # Todo + Finance features
   flutter_bloc: ^8.1.6
   equatable: ^2.0.5
   sqflite: ^2.3.3
+  fl_chart: ^0.69.0
 
   # flutter_svg: ^2.0.10+1 # Uncomment if using SVG logo
 dev_dependencies:

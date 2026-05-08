@@ -9,8 +9,10 @@ class LocalDatabaseService {
   Database? _db;
 
   static const _fileName = 'tool4life.db';
-  static const _version = 1;
+  static const _version = 2;
   static const todoTable = 'todos';
+  static const financeTransactionTable = 'finance_transactions';
+  static const financeCategoryTable = 'finance_categories';
 
   Future<Database> open() async {
     if (_db != null && _db!.isOpen) return _db!;
@@ -20,6 +22,7 @@ class LocalDatabaseService {
       path,
       version: _version,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
     return _db!;
   }
@@ -40,6 +43,17 @@ class LocalDatabaseService {
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    await _createTodoSchema(db);
+    await _createFinanceSchema(db);
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _createFinanceSchema(db);
+    }
+  }
+
+  Future<void> _createTodoSchema(Database db) async {
     await db.execute('''
       CREATE TABLE $todoTable (
         id TEXT PRIMARY KEY,
@@ -54,6 +68,37 @@ class LocalDatabaseService {
     ''');
     await db.execute(
       'CREATE INDEX idx_${todoTable}_date ON $todoTable(date)',
+    );
+  }
+
+  Future<void> _createFinanceSchema(Database db) async {
+    await db.execute('''
+      CREATE TABLE $financeCategoryTable (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        icon TEXT NOT NULL,
+        is_default INTEGER NOT NULL
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE $financeTransactionTable (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        amount REAL NOT NULL,
+        category_id TEXT NOT NULL,
+        date INTEGER NOT NULL,
+        note TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX idx_${financeTransactionTable}_date ON $financeTransactionTable(date)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_${financeTransactionTable}_type ON $financeTransactionTable(type)',
     );
   }
 }
