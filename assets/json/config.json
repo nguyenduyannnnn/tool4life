@@ -4,7 +4,7 @@
     "appName": "Chang Meeting",
     "appIcon": "@mipmap/ic_launcher",
     "launchBackground": "@drawable/launch_background",
-    "appId": "annd11.mobile.changmeeting",
+    "appId": "annd.personal.toolforlife",
     "versionName": "1.0.0",
     "versionCode": 1,
     "server": "https://meeting-agent-api.fpt.net",

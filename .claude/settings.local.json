@@ -33,7 +33,8 @@
       "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-17\" ./gradlew :app:compileDebugKotlin --rerun-tasks)",
       "Bash(dir lib\\\\features /b /s)",
       "Bash(findstr \".dart\")",
-      "Bash(dir *)"
+      "Bash(dir *)",
+      "Bash(git mv *)"
     ]
   }
 }

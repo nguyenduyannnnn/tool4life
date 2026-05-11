@@ -1,4 +1,4 @@
-package annd11.mobile.changmeeting
+package annd.personal.toolforlife
 
 import android.content.Intent
 import android.os.Bundle

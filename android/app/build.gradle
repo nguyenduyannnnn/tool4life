@@ -13,7 +13,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "annd11.mobile.changmeeting"
+    namespace = "annd.personal.toolforlife"
     compileSdk = 36
 
     compileOptions {
@@ -30,15 +30,15 @@ android {
     }
 
     defaultConfig {
-        applicationId = "annd11.mobile.changmeeting"
+        applicationId = "annd.personal.toolforlife"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        
+
         // OAuth redirect scheme for deep linking
         manifestPlaceholders = [
-            'appAuthRedirectScheme': 'msauth.annd11.mobile.changmeeting'
+            'appAuthRedirectScheme': 'msauth.annd.personal.toolforlife'
         ]
         
         // Disable native debug symbol stripping
