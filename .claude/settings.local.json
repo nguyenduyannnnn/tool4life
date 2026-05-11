@@ -30,7 +30,10 @@
       "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-17\" ./gradlew :app:compileDebugKotlin)",
       "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-17\" ./gradlew :app:compileDebugKotlin --info)",
       "Bash(unzip -l build/app/outputs/flutter-apk/app-debug.apk)",
-      "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-17\" ./gradlew :app:compileDebugKotlin --rerun-tasks)"
+      "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-17\" ./gradlew :app:compileDebugKotlin --rerun-tasks)",
+      "Bash(dir lib\\\\features /b /s)",
+      "Bash(findstr \".dart\")",
+      "Bash(dir *)"
     ]
   }
 }

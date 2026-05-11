@@ -68,11 +68,17 @@ dependencies:
   crypto: ^3.0.5
   share_plus: ^10.0.2
 
-  # Todo + Finance features
+  # Todo + Finance + Places features
   flutter_bloc: ^8.1.6
   equatable: ^2.0.5
   sqflite: ^2.3.3
   fl_chart: ^0.69.0
+  # google_maps_flutter and geolocator 13 pull androidx.core 1.17, which
+  # requires AGP 8.9.1+. Pinning geolocator to 11.x keeps things compatible
+  # with current AGP 8.6.0 toolchain. Map widget is a placeholder until the
+  # user provides a Google Maps API key and upgrades the Android toolchain.
+  geolocator: ^11.0.0
+  uuid: ^4.5.1
 
   # flutter_svg: ^2.0.10+1 # Uncomment if using SVG logo
 dev_dependencies:
@@ -91,8 +97,8 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/image/tool4life_logo.png
-  adaptive_icon_foreground: assets/image/tool4life_logo.png
+  image_path: assets/image/icon_app.png
+  adaptive_icon_foreground: assets/image/icon_app.png
   adaptive_icon_background: "#ffffff"
   remove_alpha_ios: true
 

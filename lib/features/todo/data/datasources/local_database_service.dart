@@ -9,10 +9,11 @@ class LocalDatabaseService {
   Database? _db;
 
   static const _fileName = 'tool4life.db';
-  static const _version = 2;
+  static const _version = 3;
   static const todoTable = 'todos';
   static const financeTransactionTable = 'finance_transactions';
   static const financeCategoryTable = 'finance_categories';
+  static const placesTable = 'places';
 
   Future<Database> open() async {
     if (_db != null && _db!.isOpen) return _db!;
@@ -45,11 +46,15 @@ class LocalDatabaseService {
   Future<void> _onCreate(Database db, int version) async {
     await _createTodoSchema(db);
     await _createFinanceSchema(db);
+    await _createPlacesSchema(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await _createFinanceSchema(db);
+    }
+    if (oldVersion < 3) {
+      await _createPlacesSchema(db);
     }
   }
 
@@ -99,6 +104,29 @@ class LocalDatabaseService {
     );
     await db.execute(
       'CREATE INDEX idx_${financeTransactionTable}_type ON $financeTransactionTable(type)',
+    );
+  }
+
+  Future<void> _createPlacesSchema(Database db) async {
+    await db.execute('''
+      CREATE TABLE $placesTable (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        image_paths TEXT NOT NULL,
+        visited_at INTEGER NOT NULL,
+        tag TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX idx_${placesTable}_visited_at ON $placesTable(visited_at)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_${placesTable}_tag ON $placesTable(tag)',
     );
   }
 }

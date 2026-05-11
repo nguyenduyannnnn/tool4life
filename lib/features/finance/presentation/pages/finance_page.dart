@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:changmeeting/common/theme.dart';
+import 'package:changmeeting/features/dashboard/presentation/bloc/main_navigation_cubit.dart';
 import '../../domain/entities/transaction_entity.dart';
 import '../bloc/finance_bloc.dart';
 import '../bloc/finance_event.dart';
@@ -21,6 +22,8 @@ class FinancePage extends StatefulWidget {
 }
 
 class _FinancePageState extends State<FinancePage> {
+  bool _autoOpenedFromDashboard = false;
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +31,18 @@ class _FinancePageState extends State<FinancePage> {
     final now = DateTime.now();
     bloc.add(const SeedDefaultFinanceCategories());
     bloc.add(LoadFinanceByMonth(DateTime(now.year, now.month, 1)));
+  }
+
+  void _maybeAutoOpenCreate(FinanceState financeState) {
+    if (_autoOpenedFromDashboard) return;
+    if (financeState.categories.isEmpty) return;
+    final nav = context.read<MainNavigationCubit>();
+    if (!nav.state.pendingFinanceCreate) return;
+    _autoOpenedFromDashboard = true;
+    nav.consumeFinanceCreate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _openForm();
+    });
   }
 
   Future<void> _openForm({TransactionEntity? initial}) async {
@@ -100,6 +115,7 @@ class _FinancePageState extends State<FinancePage> {
               SnackBar(content: Text(state.errorMessage!)),
             );
           }
+          _maybeAutoOpenCreate(state);
         },
         builder: (context, state) {
           return Column(

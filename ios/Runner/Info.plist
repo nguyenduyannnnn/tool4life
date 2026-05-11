@@ -18,7 +18,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Chang Meeting</string>
+		<string>A Xoài</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -26,7 +26,7 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>changmeeting</string>
+		<string>A Xoài</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -66,7 +66,11 @@
 		<key>NSMicrophoneUsageDescription</key>
 		<string>Ứng dụng Chang Meeting cần quyền truy cập microphone để ghi âm cuộc họp và các ghi chú âm thanh của bạn.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>Ứng dụng cần quyền truy cập thư viện ảnh để lưu và chia sẻ file ghi âm.</string>
+		<string>Ứng dụng cần quyền truy cập thư viện ảnh để lưu và chia sẻ file ghi âm, cũng như đính kèm ảnh vào địa điểm.</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ và lưu địa điểm bạn đã đến.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ và lưu địa điểm bạn đã đến.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>
