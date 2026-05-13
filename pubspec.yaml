@@ -80,6 +80,9 @@ dependencies:
   geolocator: ^11.0.0
   uuid: ^4.5.1
 
+  # Backup / restore (zip the SQLite DB + place images for share-sheet export)
+  archive: ^3.6.1
+
   # flutter_svg: ^2.0.10+1 # Uncomment if using SVG logo
 dev_dependencies:
   flutter_test:
