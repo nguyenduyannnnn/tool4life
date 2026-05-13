@@ -13,12 +13,14 @@ class TransactionFormBottomSheet extends StatefulWidget {
   final TransactionEntity? initial;
   final DateTime defaultDate;
   final List<FinanceCategoryEntity> categories;
+  final Map<TransactionType, List<String>> titlesByType;
 
   const TransactionFormBottomSheet({
     super.key,
     this.initial,
     required this.defaultDate,
     required this.categories,
+    this.titlesByType = const {},
   });
 
   static Future<TransactionEntity?> show(
@@ -26,6 +28,7 @@ class TransactionFormBottomSheet extends StatefulWidget {
     TransactionEntity? initial,
     required DateTime defaultDate,
     required List<FinanceCategoryEntity> categories,
+    Map<TransactionType, List<String>> titlesByType = const {},
   }) {
     return showModalBottomSheet<TransactionEntity>(
       context: context,
@@ -35,6 +38,7 @@ class TransactionFormBottomSheet extends StatefulWidget {
         initial: initial,
         defaultDate: defaultDate,
         categories: categories,
+        titlesByType: titlesByType,
       ),
     );
   }
@@ -49,6 +53,7 @@ class _TransactionFormBottomSheetState
   late final TextEditingController _titleCtrl;
   late final TextEditingController _amountCtrl;
   late final TextEditingController _noteCtrl;
+  final FocusNode _titleFocus = FocusNode();
   late TransactionType _type;
   late DateTime _date;
   String? _categoryId;
@@ -60,11 +65,16 @@ class _TransactionFormBottomSheetState
     final initial = widget.initial;
     _titleCtrl = TextEditingController(text: initial?.title ?? '');
     _amountCtrl = TextEditingController(
-      text: initial == null ? '' : initial.amount.toStringAsFixed(0),
+      text: initial == null
+          ? ''
+          : _ThousandsTextInputFormatter.formatDigits(
+              initial.amount.round().toString(),
+            ),
     );
     _noteCtrl = TextEditingController(text: initial?.note ?? '');
     _type = initial?.type ?? TransactionType.expense;
-    _date = initial?.date ?? widget.defaultDate;
+    final today = DateTime.now();
+    _date = initial?.date ?? DateTime(today.year, today.month, today.day);
     _categoryId = initial?.categoryId;
   }
 
@@ -73,6 +83,7 @@ class _TransactionFormBottomSheetState
     _titleCtrl.dispose();
     _amountCtrl.dispose();
     _noteCtrl.dispose();
+    _titleFocus.dispose();
     super.dispose();
   }
 
@@ -111,7 +122,8 @@ class _TransactionFormBottomSheetState
       );
       return;
     }
-    final amount = double.tryParse(_amountCtrl.text.trim()) ?? 0;
+    final rawAmount = _amountCtrl.text.replaceAll('.', '').trim();
+    final amount = double.tryParse(rawAmount) ?? 0;
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Số tiền phải lớn hơn 0')),
@@ -139,6 +151,93 @@ class _TransactionFormBottomSheetState
     final ts = DateTime.now().microsecondsSinceEpoch;
     final rand = Random().nextInt(0x7FFFFFFF);
     return '${ts}_$rand';
+  }
+
+  List<String> get _suggestionsForType {
+    final list = widget.titlesByType[_type] ?? const <String>[];
+    final seen = <String>{};
+    final out = <String>[];
+    for (final t in list) {
+      final v = t.trim();
+      if (v.isEmpty) continue;
+      final key = v.toLowerCase();
+      if (seen.add(key)) out.add(v);
+    }
+    return out;
+  }
+
+  String? _validateTitle(String? v) {
+    if (v == null || v.trim().isEmpty) {
+      return 'Tiêu đề không được để trống';
+    }
+    return null;
+  }
+
+  Widget _buildTitleField() {
+    final suggestions = _suggestionsForType;
+    final hint = suggestions.isEmpty
+        ? 'Ví dụ: Ăn trưa, Xăng xe...'
+        : 'Gợi ý: ${suggestions.take(3).join(', ')}';
+
+    return RawAutocomplete<String>(
+      textEditingController: _titleCtrl,
+      focusNode: _titleFocus,
+      optionsBuilder: (TextEditingValue value) {
+        if (suggestions.isEmpty) return const Iterable<String>.empty();
+        final query = value.text.trim().toLowerCase();
+        if (query.isEmpty) return suggestions.take(8);
+        return suggestions
+            .where((s) => s.toLowerCase().contains(query))
+            .take(8);
+      },
+      fieldViewBuilder:
+          (context, controller, focusNode, onFieldSubmitted) {
+        return TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: 'Tiêu đề *',
+            hintText: hint,
+            border: const OutlineInputBorder(),
+          ),
+          validator: _validateTitle,
+          onFieldSubmitted: (_) => onFieldSubmitted(),
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(8),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 220),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width - 32,
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  itemCount: options.length,
+                  itemBuilder: (_, index) {
+                    final option = options.elementAt(index);
+                    return InkWell(
+                      onTap: () => onSelected(option),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        child: Text(option),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -186,35 +285,26 @@ class _TransactionFormBottomSheetState
                   onChanged: _onChangeType,
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  controller: _titleCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Tiêu đề *',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
-                      return 'Tiêu đề không được để trống';
-                    }
-                    return null;
-                  },
-                ),
+                _buildTitleField(),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _amountCtrl,
                   decoration: const InputDecoration(
-                    labelText: 'Số tiền (đ) *',
+                    labelText: 'Số tiền *',
+                    suffixText: 'VNĐ',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
+                    _ThousandsTextInputFormatter(),
                   ],
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
+                    final raw = (v ?? '').replaceAll('.', '').trim();
+                    if (raw.isEmpty) {
                       return 'Số tiền không được để trống';
                     }
-                    final n = double.tryParse(v.trim()) ?? 0;
+                    final n = double.tryParse(raw) ?? 0;
                     if (n <= 0) return 'Số tiền phải lớn hơn 0';
                     return null;
                   },
@@ -294,5 +384,34 @@ class _TransactionFormBottomSheetState
         ),
       ),
     );
+  }
+}
+
+class _ThousandsTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) {
+      return const TextEditingValue(text: '');
+    }
+    final formatted = formatDigits(digits);
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+
+  static String formatDigits(String digits) {
+    final cleaned = digits.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleaned.isEmpty) return '';
+    final buf = StringBuffer();
+    for (var i = 0; i < cleaned.length; i++) {
+      if (i > 0 && (cleaned.length - i) % 3 == 0) buf.write('.');
+      buf.write(cleaned[i]);
+    }
+    return buf.toString();
   }
 }

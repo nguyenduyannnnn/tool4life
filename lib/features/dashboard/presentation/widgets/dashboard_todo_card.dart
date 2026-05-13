@@ -77,14 +77,15 @@ class DashboardTodoCard extends StatelessWidget {
                         color: AppColors.grey, size: 20),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  totalTodos == 0
-                      ? 'Hôm nay chưa có công việc nào'
-                      : 'Hôm nay có $totalTodos công việc, đã hoàn thành $completedTodos',
-                  style: TextStyle(fontSize: 13, color: AppColors.grey),
-                ),
-                if (totalTodos > 0) ...[
+                if (totalTodos == 0) ...[
+                  const SizedBox(height: 12),
+                  _emptyState(),
+                ] else ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'Hôm nay có $totalTodos công việc, đã hoàn thành $completedTodos',
+                    style: TextStyle(fontSize: 13, color: AppColors.grey),
+                  ),
                   const SizedBox(height: 10),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
@@ -96,12 +97,9 @@ class DashboardTodoCard extends StatelessWidget {
                           AppColors.primary),
                     ),
                   ),
-                ],
-                const SizedBox(height: 12),
-                if (totalTodos == 0)
-                  _emptyState()
-                else
+                  const SizedBox(height: 12),
                   ...visibleTodos.map(_buildTodoRow),
+                ],
                 if (totalTodos > 3) ...[
                   const SizedBox(height: 4),
                   Align(
@@ -182,17 +180,20 @@ class DashboardTodoCard extends StatelessWidget {
 
   Widget _emptyState() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          Icon(Icons.assignment_outlined,
-              size: 36, color: AppColors.hint),
-          const SizedBox(height: 4),
-          Text(
-            'Tap để thêm công việc đầu tiên',
-            style: TextStyle(fontSize: 12, color: AppColors.grey),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.assignment_outlined,
+                size: 36, color: AppColors.hint),
+            const SizedBox(height: 8),
+            Text(
+              'Hôm nay chưa có công việc nào',
+              style: TextStyle(fontSize: 13, color: AppColors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }

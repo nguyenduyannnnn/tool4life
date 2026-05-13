@@ -46,18 +46,25 @@ class _FinancePageState extends State<FinancePage> {
   }
 
   Future<void> _openForm({TransactionEntity? initial}) async {
-    final state = context.read<FinanceBloc>().state;
+    final bloc = context.read<FinanceBloc>();
+    final state = bloc.state;
     if (state.categories.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đang khởi tạo danh mục, vui lòng đợi')),
       );
       return;
     }
+    Map<TransactionType, List<String>> titlesByType = const {};
+    try {
+      titlesByType = await bloc.repository.getDistinctTitlesByType();
+    } catch (_) {}
+    if (!mounted) return;
     final result = await TransactionFormBottomSheet.show(
       context,
       initial: initial,
       defaultDate: state.selectedMonth,
       categories: state.categories,
+      titlesByType: titlesByType,
     );
     if (!mounted || result == null) return;
     if (initial == null) {

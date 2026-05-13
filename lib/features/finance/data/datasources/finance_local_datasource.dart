@@ -19,6 +19,8 @@ abstract class FinanceLocalDataSource {
   Future<int> countCategories();
 
   Future<void> insertCategories(List<FinanceCategoryModel> models);
+
+  Future<Map<TransactionType, List<String>>> getDistinctTitlesByType();
 }
 
 class FinanceLocalDataSourceImpl implements FinanceLocalDataSource {
@@ -89,5 +91,31 @@ class FinanceLocalDataSourceImpl implements FinanceLocalDataSource {
       );
     }
     await batch.commit(noResult: true);
+  }
+
+  @override
+  Future<Map<TransactionType, List<String>>> getDistinctTitlesByType() async {
+    final rows = await db.rawQuery(
+      'SELECT title, type, MAX(created_at) AS last_used '
+      'FROM $_txTable '
+      "WHERE title IS NOT NULL AND title != '' "
+      'GROUP BY title, type '
+      'ORDER BY last_used DESC',
+    );
+    final out = <TransactionType, List<String>>{
+      TransactionType.income: <String>[],
+      TransactionType.expense: <String>[],
+    };
+    for (final r in rows) {
+      final title = (r['title'] as String?)?.trim();
+      final typeStr = r['type'] as String?;
+      if (title == null || title.isEmpty || typeStr == null) continue;
+      final type = TransactionType.values.firstWhere(
+        (t) => t.name == typeStr,
+        orElse: () => TransactionType.expense,
+      );
+      out[type]!.add(title);
+    }
+    return out;
   }
 }

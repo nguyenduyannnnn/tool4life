@@ -188,4 +188,9 @@ class FinanceRepositoryImpl implements FinanceRepository {
 
     await localDataSource.insertCategories(defaults);
   }
+
+  @override
+  Future<Map<TransactionType, List<String>>> getDistinctTitlesByType() {
+    return localDataSource.getDistinctTitlesByType();
+  }
 }

@@ -18,4 +18,6 @@ abstract class FinanceRepository {
   Future<void> deleteTransaction(String id);
 
   Future<void> seedDefaultCategories();
+
+  Future<Map<TransactionType, List<String>>> getDistinctTitlesByType();
 }

@@ -34,7 +34,8 @@
       "Bash(dir lib\\\\features /b /s)",
       "Bash(findstr \".dart\")",
       "Bash(dir *)",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(curl *)"
     ]
   }
 }

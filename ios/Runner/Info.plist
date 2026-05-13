@@ -1,122 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>AVAudioSessionCategoryOptions</key>
-		<array>
-			<string>AVAudioSessionCategoryOptionDefaultToSpeaker</string>
-			<string>AVAudioSessionCategoryOptionAllowBluetooth</string>
-		</array>
-		<key>AVAudioSessionCategoryPlayAndRecord</key>
-		<true/>
-		<key>BGTaskSchedulerPermittedIdentifiers</key>
-		<array>
-			<string>com.yourapp.backgroundtask</string>
-		</array>
-		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true/>
-		<key>CFBundleDevelopmentRegion</key>
-		<string>$(DEVELOPMENT_LANGUAGE)</string>
-		<key>CFBundleDisplayName</key>
-		<string>A Xoài</string>
-		<key>CFBundleExecutable</key>
-		<string>$(EXECUTABLE_NAME)</string>
-		<key>CFBundleIdentifier</key>
-		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-		<key>CFBundleInfoDictionaryVersion</key>
-		<string>6.0</string>
-		<key>CFBundleName</key>
-		<string>A Xoài</string>
-		<key>CFBundlePackageType</key>
-		<string>APPL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>$(FLUTTER_BUILD_NAME)</string>
-		<key>CFBundleSignature</key>
-		<string>????</string>
-		<key>CFBundleURLName</key>
+<dict>
+	<key>AVAudioSessionCategoryOptions</key>
+	<array>
+		<string>AVAudioSessionCategoryOptionDefaultToSpeaker</string>
+		<string>AVAudioSessionCategoryOptionAllowBluetooth</string>
+	</array>
+	<key>AVAudioSessionCategoryPlayAndRecord</key>
+	<true/>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.yourapp.backgroundtask</string>
+	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>A Xoài</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>A Xoài</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleURLName</key>
+	<string>msauth.annd.personal.toolforlife</string>
+	<key>CFBundleURLSchemes</key>
+	<array>
 		<string>msauth.annd.personal.toolforlife</string>
-		<key>CFBundleURLSchemes</key>
-		<array>
-			<string>msauth.annd.personal.toolforlife</string>
-		</array>
-		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleURLName</key>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>annd.personal.toolforlife</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
 				<string>annd.personal.toolforlife</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>annd.personal.toolforlife</string>
-				</array>
-			</dict>
-		</array>
-		<key>CFBundleVersion</key>
-		<string>$(FLUTTER_BUILD_NUMBER)</string>
-		<key>ITSAppUsesNonExemptEncryption</key>
-		<false/>
-		<key>LSRequiresIPhoneOS</key>
-		<true/>
-		<key>NSAppTransportSecurity</key>
-		<dict>
-			<key>NSAllowsArbitraryLoads</key>
-			<true/>
+			</array>
 		</dict>
-		<key>NSDocumentsFolderUsageDescription</key>
-		<string>Ứng dụng cần quyền truy cập thư mục Documents để lưu trữ file ghi âm.</string>
-		<key>NSMicrophoneUsageDescription</key>
-		<string>Ứng dụng Chang Meeting cần quyền truy cập microphone để ghi âm cuộc họp và các ghi chú âm thanh của bạn.</string>
-		<key>NSPhotoLibraryUsageDescription</key>
-		<string>Ứng dụng cần quyền truy cập thư viện ảnh để lưu và chia sẻ file ghi âm, cũng như đính kèm ảnh vào địa điểm.</string>
-		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ và lưu địa điểm bạn đã đến.</string>
-		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ và lưu địa điểm bạn đã đến.</string>
-		<key>UIApplicationSceneManifest</key>
-		<dict>
-			<key>UIApplicationSupportsMultipleScenes</key>
-			<false/>
-			<key>UISceneConfigurations</key>
-			<dict>
-				<key>UIWindowSceneSessionRoleApplication</key>
-				<array>
-					<dict>
-						<key>UISceneClassName</key>
-						<string>UIWindowScene</string>
-						<key>UISceneConfigurationName</key>
-						<string>flutter</string>
-						<key>UISceneDelegateClassName</key>
-						<string>FlutterSceneDelegate</string>
-						<key>UISceneStoryboardFile</key>
-						<string>Main</string>
-					</dict>
-				</array>
-			</dict>
-		</dict>
-		<key>UIApplicationSupportsIndirectInputEvents</key>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-		<key>UIBackgroundModes</key>
-		<array>
-			<string>audio</string>
-			<string>processing</string>
-		</array>
-		<key>UILaunchStoryboardName</key>
-		<string>LaunchScreen</string>
-		<key>UIMainStoryboardFile</key>
-		<string>Main</string>
-		<key>UISupportedInterfaceOrientations</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-			<string>UIInterfaceOrientationLandscapeLeft</string>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-		</array>
-		<key>UISupportedInterfaceOrientations~ipad</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-			<string>UIInterfaceOrientationPortraitUpsideDown</string>
-			<string>UIInterfaceOrientationLandscapeLeft</string>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-		</array>
-		<key>UIStatusBarHidden</key>
-		<false/>
 	</dict>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Ứng dụng cần quyền truy cập thư mục Documents để lưu trữ file ghi âm.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ và lưu địa điểm bạn đã đến.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ và lưu địa điểm bạn đã đến.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Ứng dụng Chang Meeting cần quyền truy cập microphone để ghi âm cuộc họp và các ghi chú âm thanh của bạn.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Ứng dụng cần quyền truy cập thư viện ảnh để lưu và chia sẻ file ghi âm, cũng như đính kèm ảnh vào địa điểm.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>processing</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UIStatusBarHidden</key>
+	<false/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+</dict>
 </plist>

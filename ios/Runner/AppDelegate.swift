@@ -11,7 +11,7 @@ import GoogleMaps
 
     // TODO(user): replace YOUR_GOOGLE_MAPS_API_KEY with a real key from
     // Google Cloud Console (enable Maps SDK for iOS).
-    GMSServices.provideAPIKey("YOUR_GOOGLE_MAPS_API_KEY")
+    GMSServices.provideAPIKey("AIzaSyAq4pOr7whQmtoQJ-hrkjvW8Zj5IYSx8ug")
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

@@ -56,7 +56,7 @@
              Without a valid key the map renders blank/grey. -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_GOOGLE_MAPS_API_KEY"/>
+            android:value="AIzaSyAq4pOr7whQmtoQJ-hrkjvW8Zj5IYSx8ug"/>
 
         <!-- Overlay service for recording bubble -->
         <service
