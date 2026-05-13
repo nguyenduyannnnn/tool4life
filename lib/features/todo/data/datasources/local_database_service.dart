@@ -43,6 +43,18 @@ class LocalDatabaseService {
     _db = null;
   }
 
+  Future<String> getDbFilePath() async {
+    final dbPath = await getDatabasesPath();
+    return p.join(dbPath, _fileName);
+  }
+
+  /// Flush WAL into the main db file so a raw file copy contains every commit.
+  Future<void> checkpoint() async {
+    final d = _db;
+    if (d == null || !d.isOpen) return;
+    await d.rawQuery('PRAGMA wal_checkpoint(FULL)');
+  }
+
   Future<void> _onCreate(Database db, int version) async {
     await _createTodoSchema(db);
     await _createFinanceSchema(db);
