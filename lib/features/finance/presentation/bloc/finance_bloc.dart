@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/entities/finance_month_totals_entity.dart';
 import '../../domain/repositories/finance_repository.dart';
 import '../../domain/usecases/create_transaction.dart';
 import '../../domain/usecases/delete_transaction.dart';
@@ -36,6 +37,7 @@ class FinanceBloc extends Bloc<FinanceEvent, FinanceState> {
     on<ChangeTransactionFilter>(_onChangeFilter);
     on<LoadFinanceCategories>(_onLoadCategories);
     on<SeedDefaultFinanceCategories>(_onSeed);
+    on<LoadTwelveMonthTotals>(_onLoadTwelveMonthTotals);
   }
 
   Future<void> _onLoad(
@@ -128,6 +130,39 @@ class FinanceBloc extends Bloc<FinanceEvent, FinanceState> {
       add(const LoadFinanceCategories());
     } catch (e) {
       emit(state.copyWith(
+        status: FinanceStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> _onLoadTwelveMonthTotals(
+      LoadTwelveMonthTotals event, Emitter<FinanceState> emit) async {
+    emit(state.copyWith(twelveMonthLoading: true, clearError: true));
+    try {
+      final now = DateTime.now();
+      final anchor = DateTime(now.year, now.month, 1);
+      final months = <DateTime>[
+        for (int i = 11; i >= 0; i--)
+          DateTime(anchor.year, anchor.month - i, 1),
+      ];
+      final summaries =
+          await Future.wait(months.map(repository.getMonthlySummary));
+      final totals = <FinanceMonthTotalsEntity>[
+        for (int i = 0; i < months.length; i++)
+          FinanceMonthTotalsEntity(
+            month: months[i],
+            totalIncome: summaries[i].totalIncome,
+            totalExpense: summaries[i].totalExpense,
+          ),
+      ];
+      emit(state.copyWith(
+        twelveMonthTotals: totals,
+        twelveMonthLoading: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        twelveMonthLoading: false,
         status: FinanceStatus.failure,
         errorMessage: e.toString(),
       ));

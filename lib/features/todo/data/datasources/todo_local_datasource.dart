@@ -6,6 +6,8 @@ import 'local_database_service.dart';
 abstract class TodoLocalDataSource {
   Future<List<TodoModel>> getTodosByDate(DateTime date);
 
+  Future<List<TodoModel>> getTodosByMonth(DateTime month);
+
   Future<void> upsert(TodoModel model);
 
   Future<void> deleteById(String id);
@@ -26,6 +28,18 @@ class TodoLocalDataSourceImpl implements TodoLocalDataSource {
   Future<List<TodoModel>> getTodosByDate(DateTime date) async {
     final start = DateTime(date.year, date.month, date.day);
     final end = start.add(const Duration(days: 1));
+    final rows = await db.query(
+      _table,
+      where: 'date >= ? AND date < ?',
+      whereArgs: [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+    );
+    return rows.map(TodoModel.fromMap).toList();
+  }
+
+  @override
+  Future<List<TodoModel>> getTodosByMonth(DateTime month) async {
+    final start = DateTime(month.year, month.month, 1);
+    final end = DateTime(month.year, month.month + 1, 1);
     final rows = await db.query(
       _table,
       where: 'date >= ? AND date < ?',

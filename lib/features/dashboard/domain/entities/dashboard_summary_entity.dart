@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../finance/domain/entities/finance_category_entity.dart';
+import '../../../finance/domain/entities/transaction_entity.dart';
 import '../../../places/domain/entities/place_entity.dart';
 import '../../../todo/domain/entities/todo_entity.dart';
 
@@ -12,6 +14,8 @@ class DashboardSummaryEntity extends Equatable {
   final double totalIncome;
   final double totalExpense;
   final double balance;
+  final List<TransactionEntity> recentTransactions;
+  final List<FinanceCategoryEntity> financeCategories;
 
   final PlaceEntity? featuredPlace;
   final String? featuredImagePath;
@@ -26,6 +30,8 @@ class DashboardSummaryEntity extends Equatable {
     required this.totalIncome,
     required this.totalExpense,
     required this.balance,
+    this.recentTransactions = const [],
+    this.financeCategories = const [],
     this.featuredPlace,
     this.featuredImagePath,
     required this.generatedAt,
@@ -53,6 +59,8 @@ class DashboardSummaryEntity extends Equatable {
         totalIncome,
         totalExpense,
         balance,
+        recentTransactions,
+        financeCategories,
         featuredPlace,
         featuredImagePath,
         generatedAt,

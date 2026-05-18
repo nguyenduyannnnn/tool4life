@@ -9,6 +9,7 @@ import '../bloc/todo_state.dart';
 import '../widgets/todo_date_selector.dart';
 import '../widgets/todo_filter_chips.dart';
 import '../widgets/todo_item.dart';
+import '../widgets/todo_month_calendar.dart';
 import '../widgets/todo_progress_card.dart';
 import 'todo_form_bottom_sheet.dart';
 
@@ -83,6 +84,28 @@ class _TodoPageState extends State<TodoPage> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          BlocBuilder<TodoBloc, TodoState>(
+            buildWhen: (p, c) => p.viewMode != c.viewMode,
+            builder: (context, state) {
+              final isMonth = state.viewMode == TodoViewMode.month;
+              return IconButton(
+                tooltip: isMonth ? 'Xem theo ngày' : 'Xem theo tháng',
+                icon: Icon(
+                  isMonth
+                      ? Icons.view_day_outlined
+                      : Icons.calendar_month_outlined,
+                  color: AppColors.primary,
+                ),
+                onPressed: () => context.read<TodoBloc>().add(
+                      ChangeViewMode(
+                        isMonth ? TodoViewMode.day : TodoViewMode.month,
+                      ),
+                    ),
+              );
+            },
+          ),
+        ],
       ),
       body: BlocConsumer<TodoBloc, TodoState>(
         listener: (context, state) {
@@ -94,35 +117,66 @@ class _TodoPageState extends State<TodoPage> {
           }
         },
         builder: (context, state) {
-          return Column(
-            children: [
-              TodoDateSelector(
-                selectedDate: state.selectedDate,
-                onDateChanged: (d) =>
-                    context.read<TodoBloc>().add(ChangeSelectedDate(d)),
-              ),
-              TodoProgressCard(
-                completed: state.completedCount,
-                total: state.totalCount,
-                progress: state.progress,
-              ),
-              TodoFilterChips(
-                selected: state.filter,
-                onChanged: (f) =>
-                    context.read<TodoBloc>().add(ChangeTodoFilter(f)),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: _buildList(state),
-              ),
-            ],
-          );
+          if (state.viewMode == TodoViewMode.month) {
+            return _buildMonthView(state);
+          }
+          return _buildDayView(state);
         },
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         onPressed: () => _openForm(),
         child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildDayView(TodoState state) {
+    return Column(
+      children: [
+        TodoDateSelector(
+          selectedDate: state.selectedDate,
+          onDateChanged: (d) =>
+              context.read<TodoBloc>().add(ChangeSelectedDate(d)),
+        ),
+        TodoProgressCard(
+          completed: state.completedCount,
+          total: state.totalCount,
+          progress: state.progress,
+        ),
+        TodoFilterChips(
+          selected: state.filter,
+          onChanged: (f) =>
+              context.read<TodoBloc>().add(ChangeTodoFilter(f)),
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: _buildList(state),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMonthView(TodoState state) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 80),
+      child: Column(
+        children: [
+          TodoMonthCalendar(
+            monthAnchor: state.monthAnchor,
+            selectedDate: state.selectedDate,
+            counts: state.monthCounts,
+            onMonthChanged: (m) =>
+                context.read<TodoBloc>().add(ChangeMonthAnchor(m)),
+            onDayTapped: (d) {
+              final bloc = context.read<TodoBloc>();
+              bloc.add(ChangeSelectedDate(d));
+              bloc.add(const ChangeViewMode(TodoViewMode.day));
+            },
+          ),
+          const SizedBox(height: 8),
+          const _MonthLegend(),
+        ],
       ),
     );
   }
@@ -183,6 +237,54 @@ class _TodoPageState extends State<TodoPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MonthLegend extends StatelessWidget {
+  const _MonthLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _LegendDot(color: AppColors.warning, label: 'Chưa hoàn thành'),
+          SizedBox(width: 16),
+          _LegendDot(color: Color(0xFF52C41A), label: 'Đã hoàn thành'),
+        ],
+      ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: AppColors.grey),
+        ),
+      ],
     );
   }
 }

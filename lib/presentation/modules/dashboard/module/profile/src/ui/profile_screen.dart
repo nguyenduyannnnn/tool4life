@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -133,11 +134,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         children: [
           _buildActionTile(
-            icon: Icons.backup_outlined,
+            icon: Icons.save_alt,
             iconColor: const Color(0xFF2E7D32),
-            title: 'Sao lưu dữ liệu',
-            subtitle: 'Xuất toàn bộ dữ liệu ra file .zip để chia sẻ',
-            onTap: _busy ? null : _onBackup,
+            title: 'Lưu file sao lưu vào máy',
+            subtitle: 'Chọn vị trí lưu file .zip trên thiết bị',
+            onTap: _busy ? null : _onBackupSaveToDevice,
+          ),
+          const Divider(height: 1, indent: 56),
+          _buildActionTile(
+            icon: Icons.ios_share,
+            iconColor: const Color(0xFF1565C0),
+            title: 'Chia sẻ file sao lưu',
+            subtitle: 'Chia sẻ file .zip qua Drive / iCloud / app khác',
+            onTap: _busy ? null : _onBackupShare,
           ),
           const Divider(height: 1, indent: 56),
           _buildActionTile(
@@ -203,7 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _onBackup() async {
+  Future<File?> _generateBackupFile() async {
     setState(() => _busy = true);
     _showLoading('Đang tạo file sao lưu...');
     File? out;
@@ -213,11 +222,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _hideLoading();
       _toast('Sao lưu thất bại: $e');
       if (mounted) setState(() => _busy = false);
-      return;
+      return null;
     }
     _hideLoading();
     if (mounted) setState(() => _busy = false);
+    return out;
+  }
 
+  Future<void> _onBackupSaveToDevice() async {
+    final out = await _generateBackupFile();
+    if (out == null) return;
+    final Uint8List bytes = await out.readAsBytes();
+    final fileName = out.path.split('/').last;
+    String? savedPath;
+    try {
+      savedPath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Lưu file sao lưu',
+        fileName: fileName,
+        bytes: bytes,
+        type: FileType.custom,
+        allowedExtensions: const ['zip'],
+      );
+    } catch (e) {
+      _toast('Không lưu được file: $e');
+      return;
+    }
+    if (savedPath == null) return;
+    _toast('Đã lưu file sao lưu');
+  }
+
+  Future<void> _onBackupShare() async {
+    final out = await _generateBackupFile();
+    if (out == null) return;
     final size = await out.length();
     await Share.shareXFiles(
       [XFile(out.path, mimeType: 'application/zip')],

@@ -39,8 +39,8 @@ class MainNavigationState extends Equatable {
 
 class MainNavigationCubit extends Cubit<MainNavigationState> {
   static const int dashboardTab = 0;
-  static const int todoTab = 1;
-  static const int financeTab = 2;
+  static const int financeTab = 1;
+  static const int todoTab = 2;
   static const int placesTab = 3;
   static const int profileTab = 4;
 

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:changmeeting/common/theme.dart';
 import 'package:changmeeting/common/utils/currency_formatter.dart';
+import 'package:changmeeting/features/finance/domain/entities/finance_category_entity.dart';
+import 'package:changmeeting/features/finance/domain/entities/transaction_entity.dart';
+import 'package:changmeeting/features/finance/presentation/widgets/category_icon_map.dart';
 
 class DashboardFinanceCard extends StatelessWidget {
   final double totalIncome;
   final double totalExpense;
   final double balance;
+  final List<TransactionEntity> recentTransactions;
+  final List<FinanceCategoryEntity> categories;
   final VoidCallback onQuickAdd;
   final VoidCallback onOpenFinanceTab;
 
@@ -15,11 +21,20 @@ class DashboardFinanceCard extends StatelessWidget {
     required this.totalIncome,
     required this.totalExpense,
     required this.balance,
+    this.recentTransactions = const [],
+    this.categories = const [],
     required this.onQuickAdd,
     required this.onOpenFinanceTab,
   });
 
   bool get _isEmpty => totalIncome == 0 && totalExpense == 0;
+
+  FinanceCategoryEntity? _findCategory(String id) {
+    for (final c in categories) {
+      if (c.id == id) return c;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +119,21 @@ class DashboardFinanceCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (recentTransactions.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Container(height: 1, color: AppColors.line),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Giao dịch gần đây',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    ...recentTransactions.map(_recentRow),
+                  ],
                 ],
               ],
             ),
@@ -173,6 +203,59 @@ class DashboardFinanceCard extends StatelessWidget {
             CurrencyFormatter.format(value),
             style: TextStyle(
               fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _recentRow(TransactionEntity tx) {
+    final isIncome = tx.type == TransactionType.income;
+    final color = isIncome ? const Color(0xFF43A047) : const Color(0xFFE53935);
+    final cat = _findCategory(tx.categoryId);
+    final iconData = iconForName(cat?.icon ?? '');
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(iconData, color: color, size: 16),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tx.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.accent,
+                  ),
+                ),
+                Text(
+                  DateFormat('dd/MM').format(tx.date),
+                  style: TextStyle(fontSize: 11, color: AppColors.grey),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            CurrencyFormatter.formatSigned(tx.amount, isIncome: isIncome),
+            style: TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w700,
               color: color,
             ),

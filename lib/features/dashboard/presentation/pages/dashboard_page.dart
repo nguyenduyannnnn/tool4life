@@ -82,6 +82,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       totalIncome: state.summary.totalIncome,
                       totalExpense: state.summary.totalExpense,
                       balance: state.summary.balance,
+                      recentTransactions: state.summary.recentTransactions,
+                      categories: state.summary.financeCategories,
                       onQuickAdd: () => context
                           .read<DashboardBloc>()
                           .add(const OpenFinanceQuickCreate()),

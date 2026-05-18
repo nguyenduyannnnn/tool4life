@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/todo_entity.dart';
+import 'todo_state.dart';
 
 abstract class TodoEvent extends Equatable {
   const TodoEvent();
@@ -71,4 +72,31 @@ class ChangeTodoFilter extends TodoEvent {
 
   @override
   List<Object?> get props => [filter];
+}
+
+class ChangeViewMode extends TodoEvent {
+  final TodoViewMode mode;
+
+  const ChangeViewMode(this.mode);
+
+  @override
+  List<Object?> get props => [mode];
+}
+
+class ChangeMonthAnchor extends TodoEvent {
+  final DateTime month;
+
+  const ChangeMonthAnchor(this.month);
+
+  @override
+  List<Object?> get props => [month];
+}
+
+class LoadTodosByMonth extends TodoEvent {
+  final DateTime month;
+
+  const LoadTodosByMonth(this.month);
+
+  @override
+  List<Object?> get props => [month];
 }

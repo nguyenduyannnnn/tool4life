@@ -35,7 +35,21 @@
       "Bash(findstr \".dart\")",
       "Bash(dir *)",
       "Bash(git mv *)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Read(//Users/nguyenduyan.anndgmail.com/development/flutter/bin/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(fvm flutter *)",
+      "Bash(fvm list *)",
+      "Bash(fvm dart *)",
+      "Read(//Users/nguyenduyan.anndgmail.com/fvm/versions/**)",
+      "Read(//Users/nguyenduyan.anndgmail.com/fvm/versions/3.24.2/bin/**)",
+      "Bash(/Users/nguyenduyan.anndgmail.com/fvm/versions/3.24.2/bin/dart analyze *)",
+      "Bash(command -v flutter)",
+      "Bash(/Users/nguyenduyan.anndgmail.com/fvm/versions/3.24.2/bin/flutter analyze *)",
+      "Bash(ls /Users/nguyenduyan.anndgmail.com/Downloads/flutter/bin 2>/dev/null | head; ls /Users/annguyenduy/Downloads/2.19.5/flutter/bin 2>/dev/null | head; fvm list 2>/dev/null)",
+      "Read(//Users/nguyenduyan.anndgmail.com/Downloads/flutter/**)",
+      "Read(//Users/annguyenduy/Downloads/2.19.5/flutter/**)",
+      "Bash(fvm use *)"
     ]
   }
 }

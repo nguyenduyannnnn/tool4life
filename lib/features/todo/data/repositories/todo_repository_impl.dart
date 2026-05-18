@@ -15,6 +15,12 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   @override
+  Future<List<TodoEntity>> getTodosByMonth(DateTime month) async {
+    final models = await localDataSource.getTodosByMonth(month);
+    return models.map((e) => e.toEntity()).toList();
+  }
+
+  @override
   Future<void> createTodo(TodoEntity todo) {
     return localDataSource.upsert(TodoModel.fromEntity(todo));
   }

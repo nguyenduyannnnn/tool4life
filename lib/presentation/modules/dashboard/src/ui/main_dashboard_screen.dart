@@ -30,14 +30,14 @@ class MainDashboardScreen extends StatelessWidget {
       label: 'Dashboard',
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.check_box_outlined),
-      activeIcon: Icon(Icons.check_box),
-      label: 'Todo',
-    ),
-    BottomNavigationBarItem(
       icon: Icon(Icons.account_balance_wallet_outlined),
       activeIcon: Icon(Icons.account_balance_wallet),
       label: 'Finance',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.check_box_outlined),
+      activeIcon: Icon(Icons.check_box),
+      label: 'Todo',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.place_outlined),
@@ -56,9 +56,9 @@ class MainDashboardScreen extends StatelessWidget {
       case 0:
         return const _DashboardTab();
       case 1:
-        return const TodoScreen();
-      case 2:
         return const FinanceScreen();
+      case 2:
+        return const TodoScreen();
       case 3:
         return const PlacesScreen();
       case 4:

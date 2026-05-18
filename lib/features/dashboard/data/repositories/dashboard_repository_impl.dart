@@ -1,4 +1,6 @@
+import '../../../finance/domain/entities/finance_category_entity.dart';
 import '../../../finance/domain/entities/finance_summary_entity.dart';
+import '../../../finance/domain/entities/transaction_entity.dart';
 import '../../../finance/domain/repositories/finance_repository.dart';
 import '../../../places/domain/entities/place_entity.dart';
 import '../../../places/domain/repositories/places_repository.dart';
@@ -28,11 +30,23 @@ class DashboardRepositoryImpl implements DashboardRepository {
       todoRepository.getTodosByDate(today),
       financeRepository.getMonthlySummary(monthStart),
       placesRepository.getAllPlaces(),
+      financeRepository.getTransactionsByMonth(monthStart),
+      financeRepository.getCategories(),
     ]);
 
     final todos = results[0] as List<TodoEntity>;
     final summary = results[1] as FinanceSummaryEntity;
     final places = results[2] as List<PlaceEntity>;
+    final monthTransactions = results[3] as List<TransactionEntity>;
+    final categories = results[4] as List<FinanceCategoryEntity>;
+
+    final sortedTransactions = List<TransactionEntity>.from(monthTransactions)
+      ..sort((a, b) {
+        final byDate = b.date.compareTo(a.date);
+        if (byDate != 0) return byDate;
+        return b.createdAt.compareTo(a.createdAt);
+      });
+    final recentTransactions = sortedTransactions.take(5).toList();
 
     final withImage = places.where((p) => p.imagePaths.isNotEmpty).toList()
       ..sort((a, b) => b.visitedAt.compareTo(a.visitedAt));
@@ -54,6 +68,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
       totalIncome: summary.totalIncome,
       totalExpense: summary.totalExpense,
       balance: summary.balance,
+      recentTransactions: recentTransactions,
+      financeCategories: categories,
       featuredPlace: featured,
       featuredImagePath: imagePath,
       generatedAt: DateTime.now(),

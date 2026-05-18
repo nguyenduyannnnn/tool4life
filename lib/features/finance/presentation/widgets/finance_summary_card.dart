@@ -41,6 +41,7 @@ class FinanceSummaryCard extends StatelessWidget {
                   value: totalIncome,
                   color: const Color(0xFF43A047),
                   icon: Icons.arrow_downward,
+                  alignment: CrossAxisAlignment.start,
                 ),
               ),
               Container(width: 1, height: 40, color: AppColors.line),
@@ -50,6 +51,7 @@ class FinanceSummaryCard extends StatelessWidget {
                   value: totalExpense,
                   color: const Color(0xFFE53935),
                   icon: Icons.arrow_upward,
+                  alignment: CrossAxisAlignment.end,
                 ),
               ),
             ],
@@ -96,11 +98,13 @@ class FinanceSummaryCard extends StatelessWidget {
     required double value,
     required Color color,
     required IconData icon,
+    required CrossAxisAlignment alignment,
   }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: alignment,
       children: [
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 14, color: color),
             const SizedBox(width: 4),

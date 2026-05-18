@@ -8,6 +8,7 @@ import 'package:changmeeting/features/todo/domain/repositories/todo_repository.d
 import 'package:changmeeting/features/todo/domain/usecases/create_todo.dart';
 import 'package:changmeeting/features/todo/domain/usecases/delete_todo.dart';
 import 'package:changmeeting/features/todo/domain/usecases/get_todos_by_date.dart';
+import 'package:changmeeting/features/todo/domain/usecases/get_todos_by_month.dart';
 import 'package:changmeeting/features/todo/domain/usecases/toggle_todo_status.dart';
 import 'package:changmeeting/features/todo/domain/usecases/update_todo.dart';
 import 'package:changmeeting/features/todo/presentation/bloc/todo_bloc.dart';
@@ -26,6 +27,7 @@ class TodoScreen extends StatelessWidget {
         );
         return TodoBloc(
           getTodosByDate: GetTodosByDate(repository),
+          getTodosByMonth: GetTodosByMonth(repository),
           createTodo: CreateTodo(repository),
           updateTodo: UpdateTodo(repository),
           deleteTodo: DeleteTodo(repository),

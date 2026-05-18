@@ -70,3 +70,7 @@ class LoadFinanceCategories extends FinanceEvent {
 class SeedDefaultFinanceCategories extends FinanceEvent {
   const SeedDefaultFinanceCategories();
 }
+
+class LoadTwelveMonthTotals extends FinanceEvent {
+  const LoadTwelveMonthTotals();
+}

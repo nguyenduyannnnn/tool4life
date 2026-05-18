@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/finance_category_entity.dart';
+import '../../domain/entities/finance_month_totals_entity.dart';
 import '../../domain/entities/finance_summary_entity.dart';
 import '../../domain/entities/transaction_entity.dart';
 
@@ -14,6 +15,8 @@ class FinanceState extends Equatable {
   final TransactionFilter filter;
   final FinanceStatus status;
   final String? errorMessage;
+  final List<FinanceMonthTotalsEntity> twelveMonthTotals;
+  final bool twelveMonthLoading;
 
   const FinanceState({
     required this.selectedMonth,
@@ -23,6 +26,8 @@ class FinanceState extends Equatable {
     this.filter = TransactionFilter.all,
     this.status = FinanceStatus.initial,
     this.errorMessage,
+    this.twelveMonthTotals = const [],
+    this.twelveMonthLoading = false,
   });
 
   factory FinanceState.initial() {
@@ -42,6 +47,8 @@ class FinanceState extends Equatable {
     FinanceStatus? status,
     String? errorMessage,
     bool clearError = false,
+    List<FinanceMonthTotalsEntity>? twelveMonthTotals,
+    bool? twelveMonthLoading,
   }) {
     return FinanceState(
       selectedMonth: selectedMonth ?? this.selectedMonth,
@@ -51,6 +58,8 @@ class FinanceState extends Equatable {
       filter: filter ?? this.filter,
       status: status ?? this.status,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      twelveMonthTotals: twelveMonthTotals ?? this.twelveMonthTotals,
+      twelveMonthLoading: twelveMonthLoading ?? this.twelveMonthLoading,
     );
   }
 
@@ -91,5 +100,7 @@ class FinanceState extends Equatable {
         filter,
         status,
         errorMessage,
+        twelveMonthTotals,
+        twelveMonthLoading,
       ];
 }

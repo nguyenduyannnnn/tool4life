@@ -393,15 +393,52 @@ class _ThousandsTextInputFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    final oldDigits = oldValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    var digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
     if (digits.isEmpty) {
       return const TextEditingValue(text: '');
     }
+
+    final rawCursor =
+        newValue.selection.baseOffset.clamp(0, newValue.text.length);
+    var digitsBeforeCursor = 0;
+    for (var i = 0; i < rawCursor; i++) {
+      if (_isDigit(newValue.text.codeUnitAt(i))) digitsBeforeCursor++;
+    }
+
+    // VND tính theo đơn vị ngàn — khi field đang trống và user gõ ký tự đầu
+    // tiên (1 chữ số), tự động thêm "000" để rút ngắn thao tác nhập. Phải
+    // ghim con trỏ ngay sau chữ số vừa gõ để các chữ số tiếp theo chèn TRƯỚC
+    // "000" (gõ "22" ra "22.000"), thay vì nối vào cuối thành "20.002".
+    var pinCursorAfterFirstDigit = false;
+    if (oldDigits.isEmpty && digits.length == 1) {
+      digits = '${digits}000';
+      pinCursorAfterFirstDigit = true;
+    }
+
     final formatted = formatDigits(digits);
+    final newCursor = pinCursorAfterFirstDigit
+        ? 1
+        : _mapDigitIndexToFormatted(formatted, digitsBeforeCursor);
+
     return TextEditingValue(
       text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
+      selection: TextSelection.collapsed(offset: newCursor),
     );
+  }
+
+  static bool _isDigit(int code) => code >= 0x30 && code <= 0x39;
+
+  static int _mapDigitIndexToFormatted(String formatted, int digitIndex) {
+    if (digitIndex <= 0) return 0;
+    var seen = 0;
+    for (var i = 0; i < formatted.length; i++) {
+      if (_isDigit(formatted.codeUnitAt(i))) {
+        seen++;
+        if (seen == digitIndex) return i + 1;
+      }
+    }
+    return formatted.length;
   }
 
   static String formatDigits(String digits) {

@@ -63,6 +63,10 @@
 	</dict>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Ứng dụng cần quyền truy cập thư mục Documents để lưu trữ file ghi âm.</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ và lưu địa điểm bạn đã đến.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
