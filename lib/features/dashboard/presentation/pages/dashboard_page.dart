@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:changmeeting/common/design_system/ds.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
@@ -24,7 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _refresh() async {
-    final bloc = context.read<DashboardBloc>();
+    final DashboardBloc bloc = context.read<DashboardBloc>();
     bloc.add(const RefreshDashboard());
     await bloc.stream.firstWhere(
       (s) => s.status != DashboardStatus.loading,
@@ -33,86 +35,103 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        top: false,
-        child: BlocConsumer<DashboardBloc, DashboardState>(
-          listenWhen: (prev, curr) =>
-              prev.errorMessage != curr.errorMessage &&
-              curr.status == DashboardStatus.failure,
-          listener: (context, state) {
-            if (state.errorMessage != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.errorMessage!)),
-              );
-            }
-          },
-          builder: (context, state) {
-            final showInitialLoader =
-                state.status == DashboardStatus.loading &&
-                    !state.hasInitialData;
-            return RefreshIndicator(
-              onRefresh: _refresh,
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 24),
-                children: [
-                  const DashboardHeader(),
-                  const SizedBox(height: 4),
-                  if (showInitialLoader)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 48),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else ...[
-                    DashboardTodoCard(
-                      visibleTodos: state.visibleTodos,
-                      totalTodos: state.summary.totalTodos,
-                      completedTodos: state.summary.completedTodos,
-                      isExpanded: state.isTodoExpanded,
-                      onToggleExpand: () => context
-                          .read<DashboardBloc>()
-                          .add(const ToggleTodoExpand()),
-                      onOpenTodoTab: () => context
-                          .read<DashboardBloc>()
-                          .add(const OpenTodoTab()),
-                    ),
-                    DashboardFinanceCard(
-                      totalIncome: state.summary.totalIncome,
-                      totalExpense: state.summary.totalExpense,
-                      balance: state.summary.balance,
-                      recentTransactions: state.summary.recentTransactions,
-                      categories: state.summary.financeCategories,
-                      onQuickAdd: () => context
-                          .read<DashboardBloc>()
-                          .add(const OpenFinanceQuickCreate()),
-                      onOpenFinanceTab: () => context
-                          .read<DashboardBloc>()
-                          .add(const OpenFinanceTab()),
-                    ),
-                    DashboardFeaturedPlaceCard(
-                      featuredPlace: state.summary.featuredPlace,
-                      imagePath: state.summary.featuredImagePath,
-                      onOpenPlace: () {
-                        final featured = state.summary.featuredPlace;
-                        if (featured != null) {
-                          context
-                              .read<DashboardBloc>()
-                              .add(OpenPlaceDetail(featured));
-                        } else {
-                          context
-                              .read<DashboardBloc>()
-                              .add(const OpenPlacesTab());
-                        }
-                      },
-                    ),
-                  ],
-                ],
+    return DSScaffold(
+      safeAreaTop: false,
+      body: BlocConsumer<DashboardBloc, DashboardState>(
+        listenWhen: (prev, curr) =>
+            prev.errorMessage != curr.errorMessage &&
+            curr.status == DashboardStatus.failure,
+        listener: (context, state) {
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage!)),
+            );
+          }
+        },
+        builder: (context, state) {
+          final bool showInitialLoader =
+              state.status == DashboardStatus.loading && !state.hasInitialData;
+
+          final List<Widget> items = <Widget>[
+            DashboardHeader(
+              totalIncome: state.summary.totalIncome,
+              totalExpense: state.summary.totalExpense,
+              balance: state.summary.balance,
+            ).animate().fadeIn(
+                  duration: 400.ms,
+                  curve: Curves.easeOutCubic,
+                ),
+          ];
+
+          if (showInitialLoader) {
+            items.add(
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: DSSpacing.huge),
+                child: Center(child: CircularProgressIndicator()),
               ),
             );
-          },
-        ),
+          } else {
+            items.addAll(<Widget>[
+              DashboardTodoCard(
+                visibleTodos: state.visibleTodos,
+                totalTodos: state.summary.totalTodos,
+                completedTodos: state.summary.completedTodos,
+                isExpanded: state.isTodoExpanded,
+                onToggleExpand: () => context
+                    .read<DashboardBloc>()
+                    .add(const ToggleTodoExpand()),
+                onOpenTodoTab: () =>
+                    context.read<DashboardBloc>().add(const OpenTodoTab()),
+              )
+                  .animate(delay: 100.ms)
+                  .fadeIn(duration: 400.ms)
+                  .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
+              DashboardFinanceCard(
+                totalIncome: state.summary.totalIncome,
+                totalExpense: state.summary.totalExpense,
+                balance: state.summary.balance,
+                recentTransactions: state.summary.recentTransactions,
+                categories: state.summary.financeCategories,
+                onQuickAdd: () => context
+                    .read<DashboardBloc>()
+                    .add(const OpenFinanceQuickCreate()),
+                onOpenFinanceTab: () =>
+                    context.read<DashboardBloc>().add(const OpenFinanceTab()),
+              )
+                  .animate(delay: 170.ms)
+                  .fadeIn(duration: 400.ms)
+                  .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
+              DashboardFeaturedPlaceCard(
+                featuredPlace: state.summary.featuredPlace,
+                imagePath: state.summary.featuredImagePath,
+                onOpenPlace: () {
+                  final featured = state.summary.featuredPlace;
+                  if (featured != null) {
+                    context
+                        .read<DashboardBloc>()
+                        .add(OpenPlaceDetail(featured));
+                  } else {
+                    context
+                        .read<DashboardBloc>()
+                        .add(const OpenPlacesTab());
+                  }
+                },
+              )
+                  .animate(delay: 240.ms)
+                  .fadeIn(duration: 400.ms)
+                  .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
+            ]);
+          }
+
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: DSSpacing.xxl),
+              children: items,
+            ),
+          );
+        },
       ),
     );
   }

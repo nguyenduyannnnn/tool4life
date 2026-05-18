@@ -13,7 +13,8 @@ class TransactionFormBottomSheet extends StatefulWidget {
   final TransactionEntity? initial;
   final DateTime defaultDate;
   final List<FinanceCategoryEntity> categories;
-  final Map<TransactionType, List<String>> titlesByType;
+  // title -> most-recent categoryId, ordered by recency (insertion order).
+  final Map<TransactionType, Map<String, String>> titlesByType;
 
   const TransactionFormBottomSheet({
     super.key,
@@ -28,7 +29,7 @@ class TransactionFormBottomSheet extends StatefulWidget {
     TransactionEntity? initial,
     required DateTime defaultDate,
     required List<FinanceCategoryEntity> categories,
-    Map<TransactionType, List<String>> titlesByType = const {},
+    Map<TransactionType, Map<String, String>> titlesByType = const {},
   }) {
     return showModalBottomSheet<TransactionEntity>(
       context: context,
@@ -153,17 +154,32 @@ class _TransactionFormBottomSheetState
     return '${ts}_$rand';
   }
 
+  Map<String, String> get _titleCategoryMap =>
+      widget.titlesByType[_type] ?? const <String, String>{};
+
   List<String> get _suggestionsForType {
-    final list = widget.titlesByType[_type] ?? const <String>[];
     final seen = <String>{};
     final out = <String>[];
-    for (final t in list) {
+    for (final t in _titleCategoryMap.keys) {
       final v = t.trim();
       if (v.isEmpty) continue;
       final key = v.toLowerCase();
       if (seen.add(key)) out.add(v);
     }
     return out;
+  }
+
+  /// Sau khi user pick title từ gợi ý, lookup categoryId đã gắn gần nhất với
+  /// title đó và auto-fill nếu category còn hợp lệ trong type hiện tại + user
+  /// chưa chọn category nào / chọn vẫn còn match.
+  void _onTitleSelected(String pickedTitle) {
+    final categoryId = _titleCategoryMap[pickedTitle];
+    if (categoryId == null) return;
+    final stillValid =
+        _filteredCategories.any((c) => c.id == categoryId);
+    if (!stillValid) return;
+    if (_categoryId == categoryId) return;
+    setState(() => _categoryId = categoryId);
   }
 
   String? _validateTitle(String? v) {
@@ -182,6 +198,7 @@ class _TransactionFormBottomSheetState
     return RawAutocomplete<String>(
       textEditingController: _titleCtrl,
       focusNode: _titleFocus,
+      onSelected: _onTitleSelected,
       optionsBuilder: (TextEditingValue value) {
         if (suggestions.isEmpty) return const Iterable<String>.empty();
         final query = value.text.trim().toLowerCase();

@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import 'package:changmeeting/common/theme.dart';
+import 'package:changmeeting/common/design_system/ds.dart';
 import 'package:changmeeting/common/utils/currency_formatter.dart';
 import 'package:changmeeting/features/dashboard/presentation/bloc/main_navigation_cubit.dart';
 import '../../domain/entities/transaction_entity.dart';
@@ -32,13 +33,13 @@ class FinancePage extends StatefulWidget {
 class _FinancePageState extends State<FinancePage>
     with SingleTickerProviderStateMixin {
   bool _autoOpenedFromDashboard = false;
-  final Map<String, bool> _expandedOverride = {};
+  final Map<String, bool> _expandedOverride = <String, bool>{};
   late final TabController _tabController =
       TabController(length: 2, vsync: this);
 
   bool _calendarMode = false;
   _CalendarViewMode _calendarView = _CalendarViewMode.day;
-  final Map<String, GlobalKey> _dayGroupKeys = {};
+  final Map<String, GlobalKey> _dayGroupKeys = <String, GlobalKey>{};
   String? _highlightDayKey;
   Timer? _highlightTimer;
 
@@ -49,8 +50,8 @@ class _FinancePageState extends State<FinancePage>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   bool _isDayExpanded(DateTime day) {
-    final key = _dayKey(day);
-    final override = _expandedOverride[key];
+    final String key = _dayKey(day);
+    final bool? override = _expandedOverride[key];
     if (override != null) return override;
     return _isSameDay(day, DateTime.now());
   }
@@ -64,8 +65,8 @@ class _FinancePageState extends State<FinancePage>
   @override
   void initState() {
     super.initState();
-    final bloc = context.read<FinanceBloc>();
-    final now = DateTime.now();
+    final FinanceBloc bloc = context.read<FinanceBloc>();
+    final DateTime now = DateTime.now();
     bloc.add(const SeedDefaultFinanceCategories());
     bloc.add(LoadFinanceByMonth(DateTime(now.year, now.month, 1)));
   }
@@ -99,7 +100,7 @@ class _FinancePageState extends State<FinancePage>
   }
 
   void _onCalendarDayTap(DateTime day) {
-    final key = _dayKey(day);
+    final String key = _dayKey(day);
     setState(() {
       _calendarMode = false;
       _expandedOverride[key] = true;
@@ -107,7 +108,7 @@ class _FinancePageState extends State<FinancePage>
     });
     _tabController.animateTo(0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _dayGroupKeys[key]?.currentContext;
+      final BuildContext? ctx = _dayGroupKeys[key]?.currentContext;
       if (ctx != null) {
         Scrollable.ensureVisible(
           ctx,
@@ -134,7 +135,7 @@ class _FinancePageState extends State<FinancePage>
   void _maybeAutoOpenCreate(FinanceState financeState) {
     if (_autoOpenedFromDashboard) return;
     if (financeState.categories.isEmpty) return;
-    final nav = context.read<MainNavigationCubit>();
+    final MainNavigationCubit nav = context.read<MainNavigationCubit>();
     if (!nav.state.pendingFinanceCreate) return;
     _autoOpenedFromDashboard = true;
     nav.consumeFinanceCreate();
@@ -144,20 +145,21 @@ class _FinancePageState extends State<FinancePage>
   }
 
   Future<void> _openForm({TransactionEntity? initial}) async {
-    final bloc = context.read<FinanceBloc>();
-    final state = bloc.state;
+    final FinanceBloc bloc = context.read<FinanceBloc>();
+    final FinanceState state = bloc.state;
     if (state.categories.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đang khởi tạo danh mục, vui lòng đợi')),
       );
       return;
     }
-    Map<TransactionType, List<String>> titlesByType = const {};
+    Map<TransactionType, Map<String, String>> titlesByType =
+        const <TransactionType, Map<String, String>>{};
     try {
       titlesByType = await bloc.repository.getDistinctTitlesByType();
     } catch (_) {}
     if (!mounted) return;
-    final result = await TransactionFormBottomSheet.show(
+    final TransactionEntity? result = await TransactionFormBottomSheet.show(
       context,
       initial: initial,
       defaultDate: state.selectedMonth,
@@ -173,19 +175,20 @@ class _FinancePageState extends State<FinancePage>
   }
 
   Future<void> _confirmDelete(String id) async {
-    final ok = await showDialog<bool>(
+    final colors = context.dsColors;
+    final bool? ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (BuildContext ctx) => AlertDialog(
         title: const Text('Xóa giao dịch?'),
         content: const Text('Bạn chắc chắn muốn xóa giao dịch này?'),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: const Text('Hủy'),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+            child: Text('Xóa', style: TextStyle(color: colors.danger)),
           ),
         ],
       ),
@@ -198,34 +201,31 @@ class _FinancePageState extends State<FinancePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+    final tokens = context.tokens;
+    return DSScaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: DSPalette.neutral0,
         elevation: 0,
-        title: const Text(
-          'Thu chi',
-          style: TextStyle(
-            color: AppColors.accent,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        title: const DSText.h2('Thu chi'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(
-              _calendarMode
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: DSSpacing.md),
+            child: DSIconButton(
+              icon: _calendarMode
                   ? Icons.list_alt_outlined
                   : Icons.calendar_today_outlined,
-              color: AppColors.accent,
+              variant: DSIconButtonVariant.soft,
+              size: DSIconButtonSize.sm,
+              onTap: _toggleCalendar,
             ),
-            tooltip: _calendarMode ? 'Danh sách' : 'Lịch',
-            onPressed: _toggleCalendar,
           ),
         ],
       ),
       body: BlocConsumer<FinanceBloc, FinanceState>(
-        listener: (context, state) {
+        listener: (BuildContext context, FinanceState state) {
           if (state.status == FinanceStatus.failure &&
               state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -234,10 +234,10 @@ class _FinancePageState extends State<FinancePage>
           }
           _maybeAutoOpenCreate(state);
         },
-        builder: (context, state) {
+        builder: (BuildContext context, FinanceState state) {
           if (_calendarMode) {
             return Column(
-              children: [
+              children: <Widget>[
                 _CalendarHeader(
                   viewMode: _calendarView,
                   onChanged: _setCalendarView,
@@ -251,39 +251,49 @@ class _FinancePageState extends State<FinancePage>
             );
           }
           return Column(
-            children: [
+            children: <Widget>[
               MonthSelector(
                 selectedMonth: state.selectedMonth,
-                onMonthChanged: (m) =>
+                onMonthChanged: (DateTime m) =>
                     context.read<FinanceBloc>().add(ChangeSelectedMonth(m)),
               ),
               FinanceSummaryCard(
                 totalIncome: state.summary.totalIncome,
                 totalExpense: state.summary.totalExpense,
                 balance: state.summary.balance,
-              ),
+              )
+                  .animate()
+                  .fadeIn(duration: 400.ms, delay: 80.ms)
+                  .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
               Container(
-                color: Colors.white,
+                margin: const EdgeInsets.symmetric(
+                    horizontal: DSSpacing.lg, vertical: DSSpacing.sm),
+                decoration: BoxDecoration(
+                  color: tokens.colors.surfaceVariant,
+                  borderRadius: DSRadius.brPill,
+                ),
                 child: TabBar(
                   controller: _tabController,
-                  labelColor: AppColors.primary,
-                  unselectedLabelColor: AppColors.grey,
-                  indicatorColor: AppColors.primary,
-                  indicatorWeight: 2.5,
-                  labelStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  labelColor: tokens.colors.textOnBrand,
+                  unselectedLabelColor: tokens.colors.textSecondary,
+                  indicator: BoxDecoration(
+                    gradient: tokens.brandHeroGradient,
+                    borderRadius: DSRadius.brPill,
                   ),
-                  tabs: const [
-                    Tab(text: 'Giao dịch'),
-                    Tab(text: 'Biểu đồ'),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelStyle: DSTypography.bodyBold,
+                  unselectedLabelStyle: DSTypography.body,
+                  tabs: const <Widget>[
+                    Tab(text: 'Giao dịch', height: 40),
+                    Tab(text: 'Biểu đồ', height: 40),
                   ],
                 ),
               ),
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
-                  children: [
+                  children: <Widget>[
                     _buildTransactionsTab(state),
                     _buildChartsTab(state),
                   ],
@@ -293,29 +303,32 @@ class _FinancePageState extends State<FinancePage>
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primary,
-        onPressed: () => _openForm(),
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: _GradientFab(
+        icon: Icons.add,
+        onTap: () => _openForm(),
       ),
     );
   }
 
   Widget _buildCalendarBody(FinanceState state) {
     if (_calendarView == _CalendarViewMode.day) {
-      final dayTotals = <DateTime, FinanceDayTotals>{};
-      final incomeByDay = <DateTime, double>{};
-      final expenseByDay = <DateTime, double>{};
-      for (final tx in state.filteredTransactions) {
-        final d = DateTime(tx.date.year, tx.date.month, tx.date.day);
+      final Map<DateTime, FinanceDayTotals> dayTotals =
+          <DateTime, FinanceDayTotals>{};
+      final Map<DateTime, double> incomeByDay = <DateTime, double>{};
+      final Map<DateTime, double> expenseByDay = <DateTime, double>{};
+      for (final TransactionEntity tx in state.filteredTransactions) {
+        final DateTime d = DateTime(tx.date.year, tx.date.month, tx.date.day);
         if (tx.type == TransactionType.income) {
           incomeByDay[d] = (incomeByDay[d] ?? 0) + tx.amount;
         } else {
           expenseByDay[d] = (expenseByDay[d] ?? 0) + tx.amount;
         }
       }
-      final allDays = <DateTime>{...incomeByDay.keys, ...expenseByDay.keys};
-      for (final d in allDays) {
+      final Set<DateTime> allDays = <DateTime>{
+        ...incomeByDay.keys,
+        ...expenseByDay.keys
+      };
+      for (final DateTime d in allDays) {
         dayTotals[d] = FinanceDayTotals(
           incomeByDay[d] ?? 0,
           expenseByDay[d] ?? 0,
@@ -324,7 +337,7 @@ class _FinancePageState extends State<FinancePage>
       return FinanceMonthCalendar(
         monthAnchor: state.selectedMonth,
         dayTotals: dayTotals,
-        onMonthChanged: (m) =>
+        onMonthChanged: (DateTime m) =>
             context.read<FinanceBloc>().add(ChangeSelectedMonth(m)),
         onDayTapped: _onCalendarDayTap,
       );
@@ -343,19 +356,24 @@ class _FinancePageState extends State<FinancePage>
     if (state.transactions.isEmpty) {
       return _emptyState();
     }
-    final items = state.filteredTransactions;
-    final groups = <DateTime, List<TransactionEntity>>{};
-    for (final tx in items) {
-      final day = DateTime(tx.date.year, tx.date.month, tx.date.day);
-      groups.putIfAbsent(day, () => []).add(tx);
+    final List<TransactionEntity> items = state.filteredTransactions;
+    final Map<DateTime, List<TransactionEntity>> groups =
+        <DateTime, List<TransactionEntity>>{};
+    for (final TransactionEntity tx in items) {
+      final DateTime day = DateTime(tx.date.year, tx.date.month, tx.date.day);
+      groups.putIfAbsent(day, () => <TransactionEntity>[]).add(tx);
     }
-    final sortedDays = groups.keys.toList()..sort((a, b) => b.compareTo(a));
+    final List<DateTime> sortedDays = groups.keys.toList()
+      ..sort((DateTime a, DateTime b) => b.compareTo(a));
 
     return ListView(
-      padding: const EdgeInsets.only(top: 4, bottom: 80),
-      children: [
-        for (final day in sortedDays)
-          _buildDayGroup(state, day, groups[day]!),
+      padding: const EdgeInsets.only(top: DSSpacing.xs, bottom: 100),
+      children: <Widget>[
+        for (int i = 0; i < sortedDays.length; i++)
+          _buildDayGroup(state, sortedDays[i], groups[sortedDays[i]]!)
+              .animate(delay: (i * 50).ms)
+              .fadeIn(duration: 350.ms)
+              .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
       ],
     );
   }
@@ -364,27 +382,27 @@ class _FinancePageState extends State<FinancePage>
     if (state.status == FinanceStatus.loading && state.transactions.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
-    final hasIncomeExpense =
+    final colors = context.dsColors;
+    final bool hasIncomeExpense =
         state.summary.totalIncome > 0 || state.summary.totalExpense > 0;
-    final hasCategoryData = state.summary.expenseByCategory.isNotEmpty;
+    final bool hasCategoryData = state.summary.expenseByCategory.isNotEmpty;
     if (!hasIncomeExpense && !hasCategoryData) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.pie_chart_outline, size: 64, color: AppColors.hint),
-            const SizedBox(height: 12),
-            Text(
-              'Chưa có dữ liệu để hiển thị biểu đồ',
-              style: TextStyle(color: AppColors.grey, fontSize: 14),
-            ),
+          children: <Widget>[
+            Icon(Icons.pie_chart_outline,
+                size: 64, color: colors.textTertiary),
+            const SizedBox(height: DSSpacing.md),
+            DSText.body('Chưa có dữ liệu để hiển thị biểu đồ',
+                color: colors.textSecondary),
           ],
         ),
       );
     }
     return ListView(
-      padding: const EdgeInsets.only(top: 4, bottom: 80),
-      children: [
+      padding: const EdgeInsets.only(top: DSSpacing.xs, bottom: 100),
+      children: <Widget>[
         if (hasIncomeExpense)
           IncomeExpenseChart(
             totalIncome: state.summary.totalIncome,
@@ -405,11 +423,12 @@ class _FinancePageState extends State<FinancePage>
     DateTime day,
     List<TransactionEntity> txs,
   ) {
-    final expanded = _isDayExpanded(day);
-    final label = DateFormat('dd/MM/yyyy').format(day);
+    final colors = context.dsColors;
+    final bool expanded = _isDayExpanded(day);
+    final String label = DateFormat('dd/MM/yyyy').format(day);
     double dayIncome = 0;
     double dayExpense = 0;
-    for (final tx in txs) {
+    for (final TransactionEntity tx in txs) {
       if (tx.type == TransactionType.income) {
         dayIncome += tx.amount;
       } else {
@@ -417,58 +436,51 @@ class _FinancePageState extends State<FinancePage>
       }
     }
 
-    final key = _dayKey(day);
-    final highlight = _highlightDayKey == key;
-    final groupKey = _dayGroupKeys.putIfAbsent(key, () => GlobalKey());
+    final String key = _dayKey(day);
+    final bool highlight = _highlightDayKey == key;
+    final GlobalKey groupKey =
+        _dayGroupKeys.putIfAbsent(key, () => GlobalKey());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+      children: <Widget>[
         Container(
           key: groupKey,
-          margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          margin: const EdgeInsets.fromLTRB(
+              DSSpacing.lg, DSSpacing.sm, DSSpacing.lg, DSSpacing.xs),
           decoration: BoxDecoration(
-            color: AppColors.primary
-                .withValues(alpha: highlight ? 0.18 : 0.08),
-            borderRadius: BorderRadius.circular(12),
+            color: highlight ? colors.accentMuted : colors.surface,
+            borderRadius: DSRadius.brLg,
             border: Border.all(
-              color: AppColors.primary
-                  .withValues(alpha: highlight ? 1.0 : 0.18),
+              color: highlight ? colors.accent : colors.outline,
               width: highlight ? 2 : 1,
             ),
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: DSRadius.brLg,
               onTap: () => _toggleDay(day),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: DSSpacing.md, vertical: DSSpacing.md),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            label,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.accent,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
+                        children: <Widget>[
+                          DSText.bodyBold(label),
+                          const SizedBox(height: DSSpacing.xs),
                           Row(
-                            children: [
+                            children: <Widget>[
                               if (dayIncome > 0)
                                 _DayTotalLabel(
                                   amount: dayIncome,
                                   isIncome: true,
                                 ),
                               if (dayIncome > 0 && dayExpense > 0)
-                                const SizedBox(width: 12),
+                                const SizedBox(width: DSSpacing.md),
                               if (dayExpense > 0)
                                 _DayTotalLabel(
                                   amount: dayExpense,
@@ -479,12 +491,14 @@ class _FinancePageState extends State<FinancePage>
                         ],
                       ),
                     ),
-                    Icon(
-                      expanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      size: 26,
-                      color: AppColors.grey,
+                    AnimatedRotation(
+                      duration: const Duration(milliseconds: 200),
+                      turns: expanded ? 0.5 : 0,
+                      child: Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 26,
+                        color: colors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -493,7 +507,7 @@ class _FinancePageState extends State<FinancePage>
           ),
         ),
         if (expanded)
-          ...txs.map((tx) => TransactionItem(
+          ...txs.map((TransactionEntity tx) => TransactionItem(
                 transaction: tx,
                 category: state.findCategoryById(tx.categoryId),
                 onEdit: () => _openForm(initial: tx),
@@ -504,31 +518,21 @@ class _FinancePageState extends State<FinancePage>
   }
 
   Widget _emptyState() {
+    final colors = context.dsColors;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Icon(Icons.account_balance_wallet_outlined,
-              size: 64, color: AppColors.hint),
-          const SizedBox(height: 12),
-          Text(
-            'Chưa có giao dịch nào trong tháng này',
-            style: TextStyle(color: AppColors.grey, fontSize: 14),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
+              size: 64, color: colors.textTertiary),
+          const SizedBox(height: DSSpacing.md),
+          DSText.body('Chưa có giao dịch nào trong tháng này',
+              color: colors.textSecondary),
+          const SizedBox(height: DSSpacing.lg),
+          DSButton.primary(
+            label: 'Thêm giao dịch',
+            leadingIcon: Icons.add,
             onPressed: () => _openForm(),
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text(
-              'Thêm giao dịch',
-              style: TextStyle(color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
           ),
         ],
       ),
@@ -544,31 +548,96 @@ class _CalendarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.tokens;
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      color: tokens.colors.background,
+      padding: const EdgeInsets.symmetric(
+          horizontal: DSSpacing.lg, vertical: DSSpacing.sm),
       child: Row(
-        children: [
+        children: <Widget>[
           Expanded(
-            child: SegmentedButton<_CalendarViewMode>(
-              segments: const [
-                ButtonSegment(
-                  value: _CalendarViewMode.day,
-                  label: Text('Ngày'),
-                  icon: Icon(Icons.calendar_view_month_outlined),
-                ),
-                ButtonSegment(
-                  value: _CalendarViewMode.month,
-                  label: Text('Tháng'),
-                  icon: Icon(Icons.grid_view_outlined),
-                ),
-              ],
-              selected: {viewMode},
-              showSelectedIcon: false,
-              onSelectionChanged: (sel) => onChanged(sel.first),
+            child: Container(
+              decoration: BoxDecoration(
+                color: tokens.colors.surfaceVariant,
+                borderRadius: DSRadius.brPill,
+              ),
+              padding: const EdgeInsets.all(DSSpacing.xs),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: _SegmentButton(
+                      label: 'Ngày',
+                      icon: Icons.calendar_view_month_outlined,
+                      selected: viewMode == _CalendarViewMode.day,
+                      onTap: () => onChanged(_CalendarViewMode.day),
+                    ),
+                  ),
+                  Expanded(
+                    child: _SegmentButton(
+                      label: 'Tháng',
+                      icon: Icons.grid_view_outlined,
+                      selected: viewMode == _CalendarViewMode.month,
+                      onTap: () => onChanged(_CalendarViewMode.month),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SegmentButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _SegmentButton({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: tokens.motionFast,
+        padding: const EdgeInsets.symmetric(vertical: DSSpacing.sm),
+        decoration: BoxDecoration(
+          gradient: selected ? tokens.brandHeroGradient : null,
+          borderRadius: DSRadius.brPill,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              icon,
+              size: 16,
+              color: selected
+                  ? tokens.colors.textOnBrand
+                  : tokens.colors.textSecondary,
+            ),
+            const SizedBox(width: DSSpacing.xs),
+            Text(
+              label,
+              style: DSTypography.label.copyWith(
+                color: selected
+                    ? tokens.colors.textOnBrand
+                    : tokens.colors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -582,23 +651,64 @@ class _DayTotalLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isIncome ? const Color(0xFF43A047) : const Color(0xFFE53935);
-    final icon =
-        isIncome ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded;
+    final colors = context.dsColors;
+    final Color color = isIncome ? colors.income : colors.expense;
+    final IconData icon = isIncome
+        ? Icons.arrow_upward_rounded
+        : Icons.arrow_downward_rounded;
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: <Widget>[
         Icon(icon, size: 14, color: color),
         const SizedBox(width: 2),
         Text(
           CurrencyFormatter.format(amount),
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+          style: DSTypography.caption.copyWith(
             color: color,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _GradientFab extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _GradientFab({required this.icon, required this.onTap});
+
+  @override
+  State<_GradientFab> createState() => _GradientFabState();
+}
+
+class _GradientFabState extends State<_GradientFab> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        duration: tokens.motionFast,
+        scale: _pressed ? 0.94 : 1.0,
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            gradient: tokens.brandHeroGradient,
+            shape: BoxShape.circle,
+            boxShadow: tokens.brandGlow,
+          ),
+          alignment: Alignment.center,
+          child: Icon(widget.icon, color: Colors.white, size: 28),
+        ),
+      ),
     );
   }
 }

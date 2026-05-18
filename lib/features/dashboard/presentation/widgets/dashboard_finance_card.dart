@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'package:changmeeting/common/theme.dart';
+import 'package:changmeeting/common/design_system/ds.dart';
 import 'package:changmeeting/common/utils/currency_formatter.dart';
 import 'package:changmeeting/features/finance/domain/entities/finance_category_entity.dart';
 import 'package:changmeeting/features/finance/domain/entities/transaction_entity.dart';
@@ -21,8 +21,8 @@ class DashboardFinanceCard extends StatelessWidget {
     required this.totalIncome,
     required this.totalExpense,
     required this.balance,
-    this.recentTransactions = const [],
-    this.categories = const [],
+    this.recentTransactions = const <TransactionEntity>[],
+    this.categories = const <FinanceCategoryEntity>[],
     required this.onQuickAdd,
     required this.onOpenFinanceTab,
   });
@@ -30,7 +30,7 @@ class DashboardFinanceCard extends StatelessWidget {
   bool get _isEmpty => totalIncome == 0 && totalExpense == 0;
 
   FinanceCategoryEntity? _findCategory(String id) {
-    for (final c in categories) {
+    for (final FinanceCategoryEntity c in categories) {
       if (c.id == id) return c;
     }
     return null;
@@ -38,270 +38,177 @@ class DashboardFinanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowColor.withValues(alpha: 0.25),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    final colors = context.dsColors;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: DSSpacing.lg,
+        vertical: DSSpacing.sm,
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onOpenFinanceTab,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.account_balance_wallet_outlined,
-                        color: AppColors.primary, size: 20),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        'Tài chính tháng này',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.accent,
-                        ),
-                      ),
-                    ),
-                    Material(
-                      color: AppColors.primary,
-                      shape: const CircleBorder(),
-                      child: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: onQuickAdd,
-                        child: const Padding(
-                          padding: EdgeInsets.all(6),
-                          child: Icon(Icons.add,
-                              color: Colors.white, size: 18),
-                        ),
-                      ),
-                    ),
-                  ],
+      child: DSCard(
+        variant: DSCardVariant.elevated,
+        radius: DSRadius.xl,
+        onTap: onOpenFinanceTab,
+        padding: const EdgeInsets.all(DSSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                DSAvatar(
+                  size: DSAvatarSize.md,
+                  icon: Icons.account_balance_wallet_outlined,
+                  bgColor: DSPalette.catEmeraldBg,
+                  fgColor: DSPalette.catEmerald,
                 ),
-                const SizedBox(height: 12),
-                if (_isEmpty)
-                  _emptyState(context)
-                else ...[
-                  _balanceRow(),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _cell(
-                          label: 'Đã tiêu',
-                          value: totalExpense,
-                          color: const Color(0xFFE53935),
-                          icon: Icons.arrow_upward,
-                        ),
-                      ),
-                      Container(
-                          width: 1, height: 32, color: AppColors.line),
-                      Expanded(
-                        child: _cell(
-                          label: 'Tổng thu',
-                          value: totalIncome,
-                          color: const Color(0xFF43A047),
-                          icon: Icons.arrow_downward,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (recentTransactions.isNotEmpty) ...[
-                    const SizedBox(height: 14),
-                    Container(height: 1, color: AppColors.line),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Giao dịch gần đây',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    ...recentTransactions.map(_recentRow),
-                  ],
-                ],
+                const SizedBox(width: DSSpacing.md),
+                const Expanded(
+                  child: DSText.h3('Tài chính tháng này'),
+                ),
+                DSIconButton(
+                  icon: Icons.add,
+                  variant: DSIconButtonVariant.gradient,
+                  size: DSIconButtonSize.sm,
+                  onTap: onQuickAdd,
+                ),
               ],
             ),
-          ),
+            const SizedBox(height: DSSpacing.lg),
+            if (_isEmpty)
+              _emptyState(context)
+            else ...<Widget>[
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: _StatCell(
+                      label: 'Đã tiêu',
+                      amount: totalExpense,
+                      color: colors.expense,
+                      icon: Icons.arrow_downward_rounded,
+                    ),
+                  ),
+                  Container(width: 1, height: 36, color: colors.divider),
+                  Expanded(
+                    child: _StatCell(
+                      label: 'Tổng thu',
+                      amount: totalIncome,
+                      color: colors.income,
+                      icon: Icons.arrow_upward_rounded,
+                    ),
+                  ),
+                ],
+              ),
+              if (recentTransactions.isNotEmpty) ...<Widget>[
+                const SizedBox(height: DSSpacing.lg),
+                Container(height: 1, color: colors.divider),
+                const SizedBox(height: DSSpacing.md),
+                DSText.label('Giao dịch gần đây',
+                    color: colors.textTertiary),
+                const SizedBox(height: DSSpacing.sm),
+                ...recentTransactions.map(_recentRow),
+              ],
+            ],
+          ],
         ),
       ),
     );
   }
 
-  Widget _balanceRow() {
-    final color =
-        balance < 0 ? const Color(0xFFE53935) : AppColors.primary;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Còn lại',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.accent,
-            ),
-          ),
-          Text(
-            CurrencyFormatter.format(balance),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _cell({
-    required String label,
-    required double value,
-    required Color color,
-    required IconData icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 12, color: color),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(fontSize: 11, color: AppColors.grey),
-              ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text(
-            CurrencyFormatter.format(value),
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _recentRow(TransactionEntity tx) {
-    final isIncome = tx.type == TransactionType.income;
-    final color = isIncome ? const Color(0xFF43A047) : const Color(0xFFE53935);
+    final bool isIncome = tx.type == TransactionType.income;
     final cat = _findCategory(tx.categoryId);
-    final iconData = iconForName(cat?.icon ?? '');
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
+    final IconData iconData = iconForName(cat?.icon ?? '');
+    return Builder(builder: (context) {
+      final colors = context.dsColors;
+      final Color color = isIncome ? colors.income : colors.expense;
+      final Color bg = isIncome ? colors.incomeBg : colors.expenseBg;
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: DSSpacing.xs),
+        child: Row(
+          children: <Widget>[
+            DSAvatar(
+              size: DSAvatarSize.sm,
+              icon: iconData,
+              bgColor: bg,
+              fgColor: color,
             ),
-            child: Icon(iconData, color: color, size: 16),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tx.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.accent,
-                  ),
-                ),
-                Text(
-                  DateFormat('dd/MM').format(tx.date),
-                  style: TextStyle(fontSize: 11, color: AppColors.grey),
-                ),
-              ],
+            const SizedBox(width: DSSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  DSText.bodyBold(tx.title, maxLines: 1),
+                  DSText.caption(DateFormat('dd/MM').format(tx.date)),
+                ],
+              ),
             ),
-          ),
-          Text(
-            CurrencyFormatter.formatSigned(tx.amount, isIncome: isIncome),
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            DSText.bodyBold(
+              CurrencyFormatter.formatSigned(tx.amount, isIncome: isIncome),
               color: color,
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _emptyState(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.savings_outlined,
-              color: AppColors.primary,
-              size: 22,
-            ),
+    final colors = context.dsColors;
+    return Row(
+      children: <Widget>[
+        DSAvatar(
+          size: DSAvatarSize.md,
+          icon: Icons.savings_outlined,
+          bgColor: colors.accentMuted,
+          fgColor: colors.accentStrong,
+        ),
+        const SizedBox(width: DSSpacing.md),
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              DSText.bodyBold('Chưa có giao dịch'),
+              SizedBox(height: 2),
+              DSText.caption('Thêm giao dịch đầu tiên'),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Còn lại: 0 đ · Đã tiêu: 0 đ',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.accent,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Thêm giao dịch đầu tiên',
-                  style: TextStyle(fontSize: 12, color: AppColors.grey),
-                ),
-              ],
-            ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatCell extends StatelessWidget {
+  final String label;
+  final double amount;
+  final Color color;
+  final IconData icon;
+
+  const _StatCell({
+    required this.label,
+    required this.amount,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: DSSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: DSSpacing.xs),
+              DSText.caption(label),
+            ],
+          ),
+          const SizedBox(height: 2),
+          DSText.bodyBold(
+            CurrencyFormatter.format(amount),
+            color: color,
           ),
         ],
       ),

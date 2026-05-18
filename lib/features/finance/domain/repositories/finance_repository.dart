@@ -19,5 +19,8 @@ abstract class FinanceRepository {
 
   Future<void> seedDefaultCategories();
 
-  Future<Map<TransactionType, List<String>>> getDistinctTitlesByType();
+  /// Returns, per [TransactionType], a map of distinct titles → most-recent
+  /// `categoryId` used with that title. Inner map preserves insertion order
+  /// by recency (most recent first).
+  Future<Map<TransactionType, Map<String, String>>> getDistinctTitlesByType();
 }

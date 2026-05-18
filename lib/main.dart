@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 import 'common/config.dart';
+import 'common/design_system/ds.dart' as ds;
 import 'common/globals.dart';
 import 'common/localization/l10n.dart';
-import 'common/theme.dart';
 import 'common/utilities.dart';
 import 'features/todo/data/datasources/local_database_service.dart';
 import 'presentation/modules/authen_module/src/ui/splash_screen.dart';
@@ -90,16 +90,17 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return OverlaySupport.global(
       child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle(
+        value: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.black,
+          systemNavigationBarColor: ds.DSPalette.neutral50,
           statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.dark,
         ),
         child: MaterialApp(
           key: _key,
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
+          theme: ds.AppTheme.light,
           builder: (context, child) {
             ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
               return Container();

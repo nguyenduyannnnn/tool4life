@@ -20,7 +20,7 @@ abstract class FinanceLocalDataSource {
 
   Future<void> insertCategories(List<FinanceCategoryModel> models);
 
-  Future<Map<TransactionType, List<String>>> getDistinctTitlesByType();
+  Future<Map<TransactionType, Map<String, String>>> getDistinctTitlesByType();
 }
 
 class FinanceLocalDataSourceImpl implements FinanceLocalDataSource {
@@ -94,27 +94,46 @@ class FinanceLocalDataSourceImpl implements FinanceLocalDataSource {
   }
 
   @override
-  Future<Map<TransactionType, List<String>>> getDistinctTitlesByType() async {
+  Future<Map<TransactionType, Map<String, String>>>
+      getDistinctTitlesByType() async {
+    // Lấy giao dịch gần nhất (theo created_at) cho mỗi cặp (title, type) để
+    // suy ra category_id mới nhất gắn với tiêu đề đó.
     final rows = await db.rawQuery(
-      'SELECT title, type, MAX(created_at) AS last_used '
-      'FROM $_txTable '
-      "WHERE title IS NOT NULL AND title != '' "
-      'GROUP BY title, type '
-      'ORDER BY last_used DESC',
+      'SELECT t.title, t.type, t.category_id, t.created_at '
+      'FROM $_txTable t '
+      'INNER JOIN ('
+      '  SELECT title, type, MAX(created_at) AS last_used '
+      '  FROM $_txTable '
+      "  WHERE title IS NOT NULL AND title != '' "
+      '  GROUP BY title, type'
+      ') m ON t.title = m.title AND t.type = m.type '
+      '   AND t.created_at = m.last_used '
+      "WHERE t.title IS NOT NULL AND t.title != '' "
+      'ORDER BY t.created_at DESC',
     );
-    final out = <TransactionType, List<String>>{
-      TransactionType.income: <String>[],
-      TransactionType.expense: <String>[],
+    final out = <TransactionType, Map<String, String>>{
+      TransactionType.income: <String, String>{},
+      TransactionType.expense: <String, String>{},
     };
     for (final r in rows) {
       final title = (r['title'] as String?)?.trim();
       final typeStr = r['type'] as String?;
-      if (title == null || title.isEmpty || typeStr == null) continue;
+      final categoryId = (r['category_id'] as String?)?.trim();
+      if (title == null ||
+          title.isEmpty ||
+          typeStr == null ||
+          categoryId == null ||
+          categoryId.isEmpty) {
+        continue;
+      }
       final type = TransactionType.values.firstWhere(
         (t) => t.name == typeStr,
         orElse: () => TransactionType.expense,
       );
-      out[type]!.add(title);
+      // putIfAbsent — giữ entry đầu tiên (đã ORDER BY created_at DESC nên đây
+      // chính là giao dịch gần nhất; tránh ghi đè bằng giao dịch cũ hơn nếu
+      // SQL JOIN trả về nhiều dòng trùng cùng created_at).
+      out[type]!.putIfAbsent(title, () => categoryId);
     }
     return out;
   }

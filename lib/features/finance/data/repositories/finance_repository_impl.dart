@@ -190,7 +190,7 @@ class FinanceRepositoryImpl implements FinanceRepository {
   }
 
   @override
-  Future<Map<TransactionType, List<String>>> getDistinctTitlesByType() {
+  Future<Map<TransactionType, Map<String, String>>> getDistinctTitlesByType() {
     return localDataSource.getDistinctTitlesByType();
   }
 }

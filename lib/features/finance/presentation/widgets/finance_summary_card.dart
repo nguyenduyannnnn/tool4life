@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:changmeeting/common/theme.dart';
+import 'package:changmeeting/common/design_system/ds.dart';
 import 'package:changmeeting/common/utils/currency_formatter.dart';
 
 class FinanceSummaryCard extends StatelessWidget {
@@ -17,113 +17,97 @@ class FinanceSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowColor.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: DSSpacing.lg,
+        vertical: DSSpacing.md,
       ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _cell(
-                  label: 'Tổng thu',
-                  value: totalIncome,
-                  color: const Color(0xFF43A047),
-                  icon: Icons.arrow_downward,
-                  alignment: CrossAxisAlignment.start,
-                ),
-              ),
-              Container(width: 1, height: 40, color: AppColors.line),
-              Expanded(
-                child: _cell(
-                  label: 'Tổng chi',
-                  value: totalExpense,
-                  color: const Color(0xFFE53935),
-                  icon: Icons.arrow_upward,
-                  alignment: CrossAxisAlignment.end,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+      child: DSCard(
+        variant: DSCardVariant.gradient,
+        brandGlow: true,
+        radius: DSRadius.xl,
+        padding: const EdgeInsets.all(DSSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const DSText.label('Số dư tháng', color: Color(0xCCFFFFFF)),
+            const SizedBox(height: DSSpacing.xs),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: balance),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) {
+                return DSText.display(
+                  CurrencyFormatter.format(value),
+                  color: Colors.white,
+                  maxLines: 1,
+                );
+              },
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Còn lại',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.accent,
+            const SizedBox(height: DSSpacing.lg),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: _Stat(
+                    label: 'Tổng thu',
+                    amount: totalIncome,
+                    icon: Icons.arrow_upward_rounded,
                   ),
                 ),
-                Text(
-                  CurrencyFormatter.format(balance),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: balance < 0
-                        ? const Color(0xFFE53935)
-                        : AppColors.primary,
+                Container(
+                  width: 1,
+                  height: 36,
+                  color: Colors.white.withValues(alpha: 0.25),
+                ),
+                Expanded(
+                  child: _Stat(
+                    label: 'Tổng chi',
+                    amount: totalExpense,
+                    icon: Icons.arrow_downward_rounded,
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _cell({
-    required String label,
-    required double value,
-    required Color color,
-    required IconData icon,
-    required CrossAxisAlignment alignment,
-  }) {
-    return Column(
-      crossAxisAlignment: alignment,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(fontSize: 12, color: AppColors.grey),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          CurrencyFormatter.format(value),
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: color,
+class _Stat extends StatelessWidget {
+  final String label;
+  final double amount;
+  final IconData icon;
+
+  const _Stat({
+    required this.label,
+    required this.amount,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: DSSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Icon(icon, size: 14, color: Colors.white.withValues(alpha: 0.85)),
+              const SizedBox(width: DSSpacing.xs),
+              DSText.caption(label, color: Colors.white.withValues(alpha: 0.85)),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 2),
+          DSText.bodyBold(
+            CurrencyFormatter.format(amount),
+            color: Colors.white,
+            maxLines: 1,
+          ),
+        ],
+      ),
     );
   }
 }

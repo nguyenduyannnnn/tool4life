@@ -71,6 +71,8 @@ dependencies:
   # Todo + Finance + Places features
   flutter_bloc: ^8.1.6
   equatable: ^2.0.5
+  # Modern Fintech Design System animations (declarative, ~50KB, Dart-only)
+  flutter_animate: ^4.5.0
   sqflite: ^2.3.3
   fl_chart: ^0.69.0
   # google_maps_flutter and geolocator 13 pull androidx.core 1.17, which
